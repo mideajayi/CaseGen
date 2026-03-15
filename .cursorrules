@@ -1,0 +1,58 @@
+project: CaseGen
+
+description: >
+  CaseGen is a Next.js web app that helps designers turn raw project notes,
+  metrics, and screenshots into structured case study drafts using the
+  Problem → Process → Decisions → Results format.
+
+tech_stack:
+  - Next.js (App Router)
+  - TypeScript
+  - Tailwind CSS
+  - OpenAI API
+
+high_level_constraints:
+  - No authentication or user accounts.
+  - No database or persistent storage.
+  - All AI processing happens in API routes (no direct OpenAI calls from the client).
+  - Output is for copy/export only; nothing is saved server-side.
+
+file_roles:
+  - app/page.tsx: Main UI page that composes the overall CaseGen interface.
+  - app/api/generate/route.ts: Server-side OpenAI call and draft generation logic.
+  - components/InputForm.tsx: User inputs (notes, metrics, screenshots) and trigger for generation.
+  - components/DraftOutput.tsx: Displays the generated case study draft.
+  - lib/prompt.ts: Prompt template and helpers for shaping the OpenAI request.
+
+code_style:
+  - Use TypeScript types and interfaces for all function parameters, return values, and props.
+  - Prefer simple, explicit, and readable code over clever or highly abstract patterns.
+  - Co-locate small helper utilities in `lib/` when they are reused across files.
+  - Keep components focused: input and display logic should live in components, AI logic in API routes and lib.
+
+comments:
+  - Write a brief, plain-English comment directly above every function describing what it does and why it exists.
+  - Use comments to clarify intent, assumptions, and edge cases rather than restating obvious implementation details.
+
+styling:
+  - Use Tailwind CSS utility classes for all styling.
+  - Do not add new external CSS files or CSS-in-JS solutions.
+  - Prefer semantic HTML elements (`main`, `section`, `header`, `button`, etc.) with Tailwind classes.
+  - Keep Tailwind class lists organized roughly as: layout → spacing → border → background → text → effects.
+
+openai_and_api:
+  - All OpenAI calls must happen in `app/api/generate/route.ts` (or other API routes), never directly in client components.
+  - The OpenAI response should be shaped into a clear Problem → Process → Decisions → Results structure.
+  - Validate and sanitize user input on the server before sending it to OpenAI.
+  - Do not log or persist raw user content or AI responses.
+
+app_router_conventions:
+  - Use the Next.js App Router with `app/`-based routes only.
+  - Keep `page.tsx` files focused on composition and layout; move heavy logic into `lib/` or API routes.
+  - Use server components by default; mark files with `"use client"` only when necessary for interactivity.
+
+dx_and_ai_behavior:
+  - After each non-trivial edit, the assistant should briefly explain what changed and why in plain English.
+  - When proposing refactors, prefer small, incremental steps that are easy to follow.
+  - When adding new files, include a short explanation of the file’s role in the CaseGen flow.
+

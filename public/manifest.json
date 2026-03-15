@@ -1,0 +1,17 @@
+{
+  "name": "CaseGen",
+  "short_name": "CaseGen",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#0f172a",
+  "description": "Generate polished case study drafts from your project notes and screenshots.",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "48x48",
+      "type": "image/x-icon"
+    }
+  ]
+}
+
