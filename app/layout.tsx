@@ -28,8 +28,8 @@ export default function RootLayout({
     <html lang="en">
       <head>
         {/* PWA meta tags placeholder */}
-        {/* <meta name="theme-color" content="#0f172a" /> */}
-        {/* <link rel="manifest" href="/manifest.json" /> */}
+        <meta name="theme-color" content="#0f172a" />
+        <link rel="manifest" href="/manifest.json" />
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} bg-slate-950 antialiased`}

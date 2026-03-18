@@ -1,58 +1,102 @@
 project: CaseGen
 
 description: >
-  CaseGen is a Next.js web app that helps designers turn raw project notes,
-  metrics, and screenshots into structured case study drafts using the
-  Problem → Process → Decisions → Results format.
+  CaseGen is a single-page web app that helps designers generate structured case
+  study drafts from project notes and screenshots using OpenAI. The draft format
+  is always: Problem → Process → Decisions → Results.
 
-tech_stack:
-  - Next.js (App Router)
-  - TypeScript
-  - Tailwind CSS
-  - OpenAI API
+stack:
+  framework: Next.js (latest stable, App Router)
+  language: TypeScript
+  styling: Tailwind CSS (zinc/neutral palette)
+  ai: OpenAI API (multimodal: text + images)
 
-high_level_constraints:
-  - No authentication or user accounts.
-  - No database or persistent storage.
-  - All AI processing happens in API routes (no direct OpenAI calls from the client).
-  - Output is for copy/export only; nothing is saved server-side.
+openai_model:
+  preferred_model_string: "gpt-5.4-mini"
+  requirements:
+    - Must support vision (image inputs).
+    - Must support JSON response format.
+    - Never hardcode dated snapshots (e.g. gpt-4o-2024-08-06); use clean aliases.
+  fallback_strategy: >
+    If "gpt-5.4-mini" is unavailable, fall back to the latest available OpenAI
+    model that supports both vision and JSON response formatting.
+  verification_rule: >
+    Before referencing an OpenAI model string in code, verify it is currently
+    available in the API. Prefer the latest stable alias and avoid snapshots.
 
-file_roles:
-  - app/page.tsx: Main UI page that composes the overall CaseGen interface.
-  - app/api/generate/route.ts: Server-side OpenAI call and draft generation logic.
-  - components/InputForm.tsx: User inputs (notes, metrics, screenshots) and trigger for generation.
-  - components/DraftOutput.tsx: Displays the generated case study draft.
-  - lib/prompt.ts: Prompt template and helpers for shaping the OpenAI request.
+data_flow:
+  - User fills `components/InputForm.tsx`.
+  - `app/page.tsx` POSTs to `/api/generate`.
+  - `app/api/generate/route.ts` validates input, calls OpenAI, returns JSON.
+  - Response shape: { success, draft:{ problem, process, decisions, results } }.
+  - `components/DraftOutput.tsx` renders the four draft sections and export actions.
 
-code_style:
-  - Use TypeScript types and interfaces for all function parameters, return values, and props.
-  - Prefer simple, explicit, and readable code over clever or highly abstract patterns.
-  - Co-locate small helper utilities in `lib/` when they are reused across files.
-  - Keep components focused: input and display logic should live in components, AI logic in API routes and lib.
+constraints:
+  - No authentication, no user accounts.
+  - No database; nothing is persisted.
+  - All AI processing happens server-side in the API route (never in client components).
+  - Images are sent from the client as base64 strings in the API request body.
+  - Must work as a PWA (installable on mobile).
+  - Output structure is always exactly 4 string fields:
+    - problem
+    - process
+    - decisions
+    - results
+  - OpenAI requests must use response_format: json_object.
 
-comments:
-  - Write a brief, plain-English comment directly above every function describing what it does and why it exists.
-  - Use comments to clarify intent, assumptions, and edge cases rather than restating obvious implementation details.
+pwa_checklist:
+  goal: >
+    CaseGen must be installable on mobile and behave like an app (PWA). Treat
+    installability as a first-class requirement when making UI, routing, and
+    asset decisions.
+  required_assets_and_metadata:
+    - Ensure `public/manifest.json` exists and is valid JSON.
+    - Add a `<link rel="manifest" href="/manifest.json" />` in `app/layout.tsx`.
+    - Set a consistent theme color (`<meta name="theme-color" ... />`) in `app/layout.tsx`.
+    - Provide appropriate app icons (at least 192x192 and 512x512) in `public/` and reference them in `manifest.json`.
+    - Ensure the app has a clear `name`, `short_name`, `start_url`, `display`, and colors in the manifest.
+  offline_and_caching:
+    - Decide and document an offline strategy (no offline, shell-only, or cached content).
+    - If adding a service worker, keep it minimal and avoid caching API responses containing user data.
+    - Never persist sensitive user inputs (notes, base64 images, drafts) in caches or storage.
+  mobile_polish:
+    - Verify tap targets are at least ~44px high and not cramped.
+    - Ensure text areas, buttons, and copy/download actions are usable on small screens.
+    - Avoid layout shifts; prefer stable heights and predictable spacing.
+  verification_steps:
+    - In Chrome DevTools, run Lighthouse and confirm PWA installability checks pass.
+    - Confirm the install prompt appears (when eligible) and the installed app launches correctly.
+    - Test on iOS Safari “Add to Home Screen” behavior (manifest + icons + theme color).
 
-styling:
-  - Use Tailwind CSS utility classes for all styling.
-  - Do not add new external CSS files or CSS-in-JS solutions.
-  - Prefer semantic HTML elements (`main`, `section`, `header`, `button`, etc.) with Tailwind classes.
-  - Keep Tailwind class lists organized roughly as: layout → spacing → border → background → text → effects.
+target_user:
+  - Designers (product, UI/UX, brand, graphics)
+  - Design-literate, quality-conscious, mobile-first
 
-openai_and_api:
-  - All OpenAI calls must happen in `app/api/generate/route.ts` (or other API routes), never directly in client components.
-  - The OpenAI response should be shaped into a clear Problem → Process → Decisions → Results structure.
-  - Validate and sanitize user input on the server before sending it to OpenAI.
-  - Do not log or persist raw user content or AI responses.
+key_files:
+  - app/page.tsx: Single page; owns state; renders InputForm and DraftOutput; triggers POST to /api/generate.
+  - app/api/generate/route.ts: POST handler; receives notes + images; calls OpenAI; returns structured draft JSON.
+  - components/InputForm.tsx: Textarea + image upload (max 5) + Generate button; collects user input.
+  - components/DraftOutput.tsx: Renders draft sections; provides Copy to clipboard + Download .txt.
+  - lib/prompt.ts: Exports SYSTEM_PROMPT and buildUserPrompt(notes, imageCount).
 
-app_router_conventions:
-  - Use the Next.js App Router with `app/`-based routes only.
-  - Keep `page.tsx` files focused on composition and layout; move heavy logic into `lib/` or API routes.
-  - Use server components by default; mark files with `"use client"` only when necessary for interactivity.
+coding_style:
+  - Add a one-line comment above every function explaining what it does.
+  - Prefer explicit TypeScript types everywhere (props, params, return types); never use "any".
+  - Keep components single-responsibility; move reusable logic into `lib/`.
+  - Prefer simple, readable code over clever abstractions.
 
-dx_and_ai_behavior:
-  - After each non-trivial edit, the assistant should briefly explain what changed and why in plain English.
-  - When proposing refactors, prefer small, incremental steps that are easy to follow.
-  - When adding new files, include a short explanation of the file’s role in the CaseGen flow.
+styling_rules:
+  - Tailwind only; do not add external CSS files or CSS-in-JS.
+  - Use a zinc/neutral palette by default; reserve accent colors for primary actions and status.
+  - Aim for generous spacing and mobile-first layouts.
+
+app_router_rules:
+  - Use App Router conventions (`app/`); do not use `pages/`.
+  - Use Server Components by default; add `"use client"` only when needed for interactivity/state.
+
+dependency_policy:
+  - Always use the latest stable versions of dependencies unless a specific version is required for compatibility.
+
+assistant_working_agreement:
+  - After each non-trivial edit, explain what changed and why in plain English.
 

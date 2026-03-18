@@ -1,7 +1,16 @@
+"use client";
+
 import InputForm from "@/components/InputForm";
 import DraftOutput from "@/components/DraftOutput";
 
+import { useState } from "react";
+import type { CaseStudyDraft } from "@/components/DraftOutput";
+
 export default function Home() {
+  const [draft, setDraft] = useState<CaseStudyDraft | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+
   return (
     <main className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-950 to-slate-900 px-4 py-10 text-slate-50">
       <div className="mx-auto flex max-w-5xl flex-col gap-10 lg:gap-12">
@@ -20,8 +29,23 @@ export default function Home() {
         </header>
 
         <section className="grid gap-6 md:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
-          <InputForm />
-          <DraftOutput />
+          <InputForm
+            isLoading={isLoading}
+            onGenerationStart={() => {
+              setIsLoading(true);
+              setError(null);
+            }}
+            onGenerationError={(message) => {
+              setIsLoading(false);
+              setError(message);
+            }}
+            onDraftGenerated={(newDraft) => {
+              setIsLoading(false);
+              setError(null);
+              setDraft(newDraft);
+            }}
+          />
+          <DraftOutput draft={draft} isLoading={isLoading} error={error} />
         </section>
       </div>
     </main>
