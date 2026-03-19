@@ -19,12 +19,11 @@ export default function Home() {
             CaseGen · draft your UX case studies faster
           </p>
           <h1 className="text-balance text-3xl font-semibold tracking-tight text-slate-50 sm:text-4xl lg:text-5xl">
-            Turn messy project notes into structured case study drafts.
+            Turn your messy project notes into structured case study drafts.
           </h1>
           <p className="max-w-2xl text-sm text-slate-300 sm:text-base">
             Paste your notes, add screenshots, and let CaseGen suggest a clear,
-            narrative-style draft you can refine and publish. This page is wired
-            up as a placeholder while we connect OpenAI.
+            narrative-style draft you can refine and publish.
           </p>
         </header>
 
@@ -45,7 +44,16 @@ export default function Home() {
               setDraft(newDraft);
             }}
           />
-          <DraftOutput draft={draft} isLoading={isLoading} error={error} />
+          <DraftOutput
+            draft={draft}
+            isLoading={isLoading}
+            error={error}
+            onReset={() => {
+              setIsLoading(false);
+              setError(null);
+              setDraft(null);
+            }}
+          />
         </section>
       </div>
     </main>

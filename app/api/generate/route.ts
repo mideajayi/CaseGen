@@ -8,8 +8,9 @@ type GenerateRequestBody = {
 type CaseStudyDraft = {
   problem: string;
   process: string;
-  decisions: string;
-  results: string;
+  solution: string;
+  feedback: string;
+  learnings: string;
 };
 
 // Converts a base64 string or a data URL into a data URL suitable for vision input.
@@ -25,8 +26,9 @@ const isCaseStudyDraft = (value: unknown): value is CaseStudyDraft => {
   return (
     typeof record.problem === "string" &&
     typeof record.process === "string" &&
-    typeof record.decisions === "string" &&
-    typeof record.results === "string"
+    typeof record.solution === "string" &&
+    typeof record.feedback === "string" &&
+    typeof record.learnings === "string"
   );
 };
 

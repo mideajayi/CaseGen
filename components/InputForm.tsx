@@ -104,7 +104,10 @@ const InputForm = ({
 
   return (
     <section className="flex flex-col gap-5 rounded-2xl border border-zinc-800 bg-zinc-950/80 p-5 shadow-lg shadow-black/40 ring-1 ring-zinc-900/60 backdrop-blur-sm sm:p-6">
-      <header className="space-y-2">
+   
+    {/* I have removed the header because it is not needed for the app to work. */}
+  
+    {/*  <header className="space-y-2">
         <h2 className="text-sm font-semibold uppercase tracking-[0.18em] text-zinc-400">
           Inputs
         </h2>
@@ -113,7 +116,7 @@ const InputForm = ({
           CaseGen will generate a structured case study draft you can copy and
           edit.
         </p>
-      </header>
+      </header> */}
 
       <div className="space-y-4">
         <label className="block space-y-2">
