@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { ReactElement } from "react";
 
 export type CaseStudyDraft = {
@@ -23,6 +23,7 @@ export interface DraftOutputProps {
     | null;
   isLoading: boolean;
   error: string | null;
+  streamText?: string;
   onReset: () => void;
 }
 
@@ -74,11 +75,94 @@ const downloadTextFile = (filename: string, text: string): void => {
   URL.revokeObjectURL(url);
 };
 
+// Animates a string with a typewriter effect for the final rendered draft.
+const TypewriterParagraph = ({ text }: { text: string }): ReactElement => {
+  const [displayText, setDisplayText] = useState<string>("");
+
+  // Re-start the animation whenever the full text changes.
+  useEffect(() => {
+    if (text.length === 0) return;
+
+    let index = 0;
+    const intervalMs = 16;
+
+    // We rely on remounting (via `key`) when `text` changes, so we don't
+    // synchronously clear state here (keeps React/ESLint happy).
+
+    const timer = window.setInterval(() => {
+      index += 1;
+      setDisplayText(text.slice(0, index));
+
+      if (index >= text.length) {
+        window.clearInterval(timer);
+      }
+    }, intervalMs);
+
+    return () => window.clearInterval(timer);
+  }, [text]);
+
+  return (
+    <p className="mt-3 whitespace-pre-wrap text-sm leading-relaxed text-zinc-200">
+      {displayText}
+    </p>
+  );
+};
+
+// Extracts a complete JSON string value for `key` from a streamed JSON text, when available.
+const extractJsonStringField = (text: string, key: string): string | null => {
+  const keyToken = `"${key}"`;
+  const keyIndex = text.indexOf(keyToken);
+  if (keyIndex === -1) return null;
+
+  const colonIndex = text.indexOf(":", keyIndex + keyToken.length);
+  if (colonIndex === -1) return null;
+
+  const firstQuoteIndex = text.indexOf('"', colonIndex);
+  if (firstQuoteIndex === -1) return null;
+
+  // Reads the JSON string contents, respecting backslash escapes, until we find the closing quote.
+  let i = firstQuoteIndex + 1;
+  let raw = "";
+  let isEscaped = false;
+  for (; i < text.length; i++) {
+    const ch = text[i];
+    if (isEscaped) {
+      raw += ch;
+      isEscaped = false;
+      continue;
+    }
+
+    if (ch === "\\") {
+      raw += ch;
+      isEscaped = true;
+      continue;
+    }
+
+    if (ch === '"') {
+      break;
+    }
+
+    raw += ch;
+  }
+
+  // If we never found the closing quote yet, we don't have a complete value.
+  if (i >= text.length || text[i] !== '"') return null;
+
+  try {
+    // Re-wrap as a JSON string literal so JSON.parse can unescape it safely.
+    const parsed = JSON.parse(`"${raw}"`) as unknown;
+    return typeof parsed === "string" ? parsed : null;
+  } catch {
+    return null;
+  }
+};
+
 // Renders the generated draft with copy and download actions, plus loading/error states.
 const DraftOutput = ({
   draft,
   isLoading,
   error,
+  streamText,
   onReset,
 }: DraftOutputProps): ReactElement | null => {
   const [copied, setCopied] = useState<boolean>(false);
@@ -106,6 +190,22 @@ const DraftOutput = ({
   };
 
   if (isLoading) {
+    const problemPreview = streamText
+      ? extractJsonStringField(streamText, "problem")
+      : null;
+    const processPreview = streamText
+      ? extractJsonStringField(streamText, "process")
+      : null;
+    const solutionPreview = streamText
+      ? extractJsonStringField(streamText, "solution")
+      : null;
+    const feedbackPreview = streamText
+      ? extractJsonStringField(streamText, "feedback")
+      : null;
+    const learningsPreview = streamText
+      ? extractJsonStringField(streamText, "learnings")
+      : null;
+
     return (
       <section className="space-y-5 rounded-2xl border border-zinc-800 bg-zinc-950/80 p-5 shadow-lg shadow-black/40 ring-1 ring-zinc-900/60 backdrop-blur-sm sm:p-6">
         <div className="flex items-center justify-between gap-3">
@@ -115,25 +215,97 @@ const DraftOutput = ({
           <div className="h-9 w-24 rounded-full bg-zinc-900/70 animate-pulse" />
         </div>
 
-        <div className="animate-pulse space-y-4">
-          {[0, 1, 2, 3, 4].map((idx) => (
-            <div
-              key={idx}
-              className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-4"
-            >
-              <div className="h-3 w-32 rounded bg-zinc-800" />
-              <div className="mt-3 space-y-2">
+        <p className="text-sm text-zinc-300">
+          Generating your case study draft...
+        </p>
+
+        {/* This explanatory line is intentionally hidden while generating. */}
+        <div className="space-y-4">
+          <section className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-4">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500">
+              The Problem
+            </p>
+            {problemPreview ? (
+              <p className="mt-3 text-sm leading-relaxed text-zinc-200">
+                {problemPreview}
+              </p>
+            ) : (
+              <div className="mt-3 animate-pulse space-y-2">
                 <div className="h-3 w-full rounded bg-zinc-800" />
                 <div className="h-3 w-11/12 rounded bg-zinc-800" />
                 <div className="h-3 w-10/12 rounded bg-zinc-800" />
               </div>
-            </div>
-          ))}
-        </div>
+            )}
+          </section>
 
-        <p className="text-sm text-zinc-300">
-          Generating your case study draft...
-        </p>
+          <section className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-4">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500">
+              Process &amp; Approach
+            </p>
+            {processPreview ? (
+              <p className="mt-3 text-sm leading-relaxed text-zinc-200">
+                {processPreview}
+              </p>
+            ) : (
+              <div className="mt-3 animate-pulse space-y-2">
+                <div className="h-3 w-full rounded bg-zinc-800" />
+                <div className="h-3 w-11/12 rounded bg-zinc-800" />
+                <div className="h-3 w-10/12 rounded bg-zinc-800" />
+              </div>
+            )}
+          </section>
+
+          <section className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-4">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500">
+              Solution
+            </p>
+            {solutionPreview ? (
+              <p className="mt-3 text-sm leading-relaxed text-zinc-200">
+                {solutionPreview}
+              </p>
+            ) : (
+              <div className="mt-3 animate-pulse space-y-2">
+                <div className="h-3 w-full rounded bg-zinc-800" />
+                <div className="h-3 w-11/12 rounded bg-zinc-800" />
+                <div className="h-3 w-10/12 rounded bg-zinc-800" />
+              </div>
+            )}
+          </section>
+
+          <section className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-4">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500">
+              Feedback
+            </p>
+            {feedbackPreview ? (
+              <p className="mt-3 text-sm leading-relaxed text-zinc-200">
+                {feedbackPreview}
+              </p>
+            ) : (
+              <div className="mt-3 animate-pulse space-y-2">
+                <div className="h-3 w-full rounded bg-zinc-800" />
+                <div className="h-3 w-11/12 rounded bg-zinc-800" />
+                <div className="h-3 w-10/12 rounded bg-zinc-800" />
+              </div>
+            )}
+          </section>
+
+          <section className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-4">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500">
+              Learnings
+            </p>
+            {learningsPreview ? (
+              <p className="mt-3 text-sm leading-relaxed text-zinc-200">
+                {learningsPreview}
+              </p>
+            ) : (
+              <div className="mt-3 animate-pulse space-y-2">
+                <div className="h-3 w-full rounded bg-zinc-800" />
+                <div className="h-3 w-11/12 rounded bg-zinc-800" />
+                <div className="h-3 w-10/12 rounded bg-zinc-800" />
+              </div>
+            )}
+          </section>
+        </div>
       </section>
     );
   }
@@ -184,45 +356,35 @@ const DraftOutput = ({
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500">
             The Problem
           </p>
-          <p className="mt-3 text-sm leading-relaxed text-zinc-200">
-            {draft.problem}
-          </p>
+          <TypewriterParagraph key={draft.problem} text={draft.problem} />
         </section>
 
         <section className="p-4">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500">
             Process &amp; Approach
           </p>
-          <p className="mt-3 text-sm leading-relaxed text-zinc-200">
-            {draft.process}
-          </p>
+          <TypewriterParagraph key={draft.process} text={draft.process} />
         </section>
 
         <section className="p-4">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500">
             Solution
           </p>
-          <p className="mt-3 text-sm leading-relaxed text-zinc-200">
-            {draft.solution}
-          </p>
+          <TypewriterParagraph key={draft.solution} text={draft.solution} />
         </section>
 
         <section className="p-4">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500">
             Feedback
           </p>
-          <p className="mt-3 text-sm leading-relaxed text-zinc-200">
-            {draft.feedback}
-          </p>
+          <TypewriterParagraph key={draft.feedback} text={draft.feedback} />
         </section>
 
         <section className="p-4">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500">
             Learnings
           </p>
-          <p className="mt-3 text-sm leading-relaxed text-zinc-200">
-            {draft.learnings}
-          </p>
+          <TypewriterParagraph key={draft.learnings} text={draft.learnings} />
         </section>
       </div>
 

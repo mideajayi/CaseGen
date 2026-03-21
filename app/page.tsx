@@ -10,6 +10,7 @@ export default function Home() {
   const [draft, setDraft] = useState<CaseStudyDraft | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const [streamText, setStreamText] = useState<string>("");
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-950 to-slate-900 px-4 py-10 text-slate-50">
@@ -33,25 +34,31 @@ export default function Home() {
             onGenerationStart={() => {
               setIsLoading(true);
               setError(null);
+              setStreamText("");
             }}
             onGenerationError={(message) => {
               setIsLoading(false);
               setError(message);
+              setStreamText("");
             }}
             onDraftGenerated={(newDraft) => {
               setIsLoading(false);
               setError(null);
               setDraft(newDraft);
+              setStreamText("");
             }}
+            onStreamTextUpdate={(text) => setStreamText(text)}
           />
           <DraftOutput
             draft={draft}
             isLoading={isLoading}
             error={error}
+            streamText={streamText}
             onReset={() => {
               setIsLoading(false);
               setError(null);
               setDraft(null);
+              setStreamText("");
             }}
           />
         </section>

@@ -18,7 +18,70 @@ type InputFormProps = {
   onDraftGenerated: (draft: CaseStudyDraft) => void;
   onGenerationStart: () => void;
   onGenerationError: (message: string) => void;
+  onStreamTextUpdate: (text: string) => void;
   isLoading: boolean;
+};
+
+// Converts an uploaded image file into a base64 data URL so it can be sent to the API.
+const fileToDataUrl = (file: File): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result));
+    reader.onerror = () => reject(new Error("Failed to read image file."));
+    reader.readAsDataURL(file);
+  });
+};
+
+// Resizes and compresses an image file in the browser, then returns a base64 data URL.
+const fileToCompressedDataUrl = async (file: File): Promise<string> => {
+  const maxDimension = 1200;
+  const quality = 0.82;
+
+  try {
+    const objectUrl = URL.createObjectURL(file);
+    const image = new Image();
+    image.decoding = "async";
+
+    const loaded = new Promise<void>((resolve, reject) => {
+      image.onload = () => resolve();
+      image.onerror = () => reject(new Error("Failed to load image for processing."));
+    });
+
+    image.src = objectUrl;
+    await loaded;
+    URL.revokeObjectURL(objectUrl);
+
+    const originalWidth = image.naturalWidth || image.width;
+    const originalHeight = image.naturalHeight || image.height;
+    if (!originalWidth || !originalHeight) {
+      return fileToDataUrl(file);
+    }
+
+    const scale = Math.min(
+      1,
+      maxDimension / Math.max(originalWidth, originalHeight),
+    );
+
+    const targetWidth = Math.max(1, Math.round(originalWidth * scale));
+    const targetHeight = Math.max(1, Math.round(originalHeight * scale));
+
+    const canvas = document.createElement("canvas");
+    canvas.width = targetWidth;
+    canvas.height = targetHeight;
+
+    const context = canvas.getContext("2d");
+    if (!context) {
+      return fileToDataUrl(file);
+    }
+
+    context.drawImage(image, 0, 0, targetWidth, targetHeight);
+
+    // Convert to JPEG to reduce payload size versus PNG for screenshots.
+    return canvas.toDataURL("image/jpeg", quality);
+  } catch {
+    // If compression fails for any reason, fall back to the original base64.
+    return fileToDataUrl(file);
+  }
 };
 
 // Renders the main input form where designers paste notes, add screenshots, and trigger draft generation.
@@ -26,6 +89,7 @@ const InputForm = ({
   onDraftGenerated,
   onGenerationStart,
   onGenerationError,
+  onStreamTextUpdate,
   isLoading,
 }: InputFormProps): ReactElement => {
   const [notes, setNotes] = useState<string>("");
@@ -69,31 +133,101 @@ const InputForm = ({
     void (async () => {
       try {
         onGenerationStart();
+        onStreamTextUpdate("");
+
+        const imageDataUrls: string[] = await Promise.all(
+          images.map(async (selected) => fileToCompressedDataUrl(selected.file)),
+        );
 
         const response = await fetch("/api/generate", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             notes,
-            images: [],
+            images: imageDataUrls,
           }),
         });
 
-        const data = (await response.json()) as GenerateResponseBody;
-
         if (!response.ok) {
+          const data = (await response.json()) as GenerateResponseBody;
           const message =
             "error" in data ? data.error : "Something went wrong.";
           onGenerationError(message);
           return;
         }
 
-        if ("success" in data && data.success) {
-          onDraftGenerated(data.draft);
+        if (!response.body) {
+          onGenerationError("No response body received.");
           return;
         }
 
-        onGenerationError("Unexpected response from the server.");
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = "";
+        let fullJsonText = "";
+
+        // Reads the server-sent events stream and updates the UI as JSON is generated.
+        while (true) {
+          const { value, done } = await reader.read();
+          if (done) break;
+          if (!value) continue;
+
+          buffer += decoder.decode(value, { stream: true });
+
+          while (true) {
+            const eventEndIndex = buffer.indexOf("\n\n");
+            if (eventEndIndex === -1) break;
+
+            const rawEvent = buffer.slice(0, eventEndIndex);
+            buffer = buffer.slice(eventEndIndex + 2);
+
+            const lines = rawEvent
+              .split("\n")
+              .map((line) => line.trim())
+              .filter(Boolean);
+
+            const eventLine = lines.find((line) => line.startsWith("event:"));
+            const dataLine = lines.find((line) => line.startsWith("data:"));
+            if (!dataLine) continue;
+
+            const eventType = eventLine
+              ? eventLine.replace(/^event:\s*/, "")
+              : "message";
+            const data = dataLine.replace(/^data:\s*/, "");
+
+            if (data === "[DONE]") continue;
+
+            if (eventType === "delta") {
+              const deltaText = JSON.parse(data) as string;
+              fullJsonText += deltaText;
+              onStreamTextUpdate(fullJsonText);
+            } else if (eventType === "done") {
+              const parsed = JSON.parse(data) as unknown;
+              if (
+                !parsed ||
+                typeof parsed !== "object" ||
+                !("problem" in parsed) ||
+                !("process" in parsed) ||
+                !("solution" in parsed) ||
+                !("feedback" in parsed) ||
+                !("learnings" in parsed)
+              ) {
+                onGenerationError(
+                  "Server returned JSON with an unexpected shape.",
+                );
+                return;
+              }
+
+              onDraftGenerated(parsed as CaseStudyDraft);
+              onStreamTextUpdate("");
+              return;
+            } else if (eventType === "error") {
+              const message = JSON.parse(data) as string;
+              onGenerationError(message);
+              return;
+            }
+          }
+        }
       } catch {
         onGenerationError("Network error. Please try again.");
       }
