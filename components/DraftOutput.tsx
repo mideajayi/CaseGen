@@ -166,6 +166,25 @@ const DraftOutput = ({
   onReset,
 }: DraftOutputProps): ReactElement | null => {
   const [copied, setCopied] = useState<boolean>(false);
+  const [showFinalDraft, setShowFinalDraft] = useState<boolean>(false);
+
+  // When draft becomes available, wait for typewriter animations to finish before showing final view
+  useEffect(() => {
+    if (draft && !isLoading) {
+      // Calculate time needed for the longest section to animate
+      const sections = [draft.problem, draft.process, draft.solution, draft.feedback, draft.learnings];
+      const maxLength = Math.max(...sections.map(s => s.length));
+      const animationTime = maxLength * 16; // 16ms per character
+      
+      const timer = window.setTimeout(() => {
+        setShowFinalDraft(true);
+      }, animationTime);
+
+      return () => window.clearTimeout(timer);
+    } else if (!draft) {
+      setShowFinalDraft(false);
+    }
+  }, [draft, isLoading]);
 
   const plainText = useMemo(() => {
     if (!draft) return "";
@@ -189,46 +208,48 @@ const DraftOutput = ({
     onReset();
   };
 
-  if (isLoading) {
-    const problemPreview = streamText
-      ? extractJsonStringField(streamText, "problem")
-      : null;
-    const processPreview = streamText
-      ? extractJsonStringField(streamText, "process")
-      : null;
-    const solutionPreview = streamText
-      ? extractJsonStringField(streamText, "solution")
-      : null;
-    const feedbackPreview = streamText
-      ? extractJsonStringField(streamText, "feedback")
-      : null;
-    const learningsPreview = streamText
-      ? extractJsonStringField(streamText, "learnings")
-      : null;
+  // Extract preview data at top level so it's available in both loading and final states
+  const problemPreview = streamText
+    ? extractJsonStringField(streamText, "problem")
+    : draft?.problem || null;
+  const processPreview = streamText
+    ? extractJsonStringField(streamText, "process")
+    : draft?.process || null;
+  const solutionPreview = streamText
+    ? extractJsonStringField(streamText, "solution")
+    : draft?.solution || null;
+  const feedbackPreview = streamText
+    ? extractJsonStringField(streamText, "feedback")
+    : draft?.feedback || null;
+  const learningsPreview = streamText
+    ? extractJsonStringField(streamText, "learnings")
+    : draft?.learnings || null;
 
+  if (isLoading || (!showFinalDraft && draft)) {
     return (
       <section className="space-y-5 rounded-2xl border border-zinc-800 bg-zinc-950/80 p-5 shadow-lg shadow-black/40 ring-1 ring-zinc-900/60 backdrop-blur-sm sm:p-6">
         <div className="flex items-center justify-between gap-3">
           <h2 className="text-sm font-semibold uppercase tracking-[0.18em] text-zinc-400">
             Draft
           </h2>
-          <div className="h-9 w-24 rounded-full bg-zinc-900/70 animate-pulse" />
+          {isLoading && (
+            <div className="h-9 w-24 rounded-full bg-zinc-900/70 animate-pulse" />
+          )}
         </div>
 
-        <p className="text-sm text-zinc-300">
-          Generating your case study draft...
-        </p>
+        {isLoading && (
+          <p className="text-sm text-zinc-300">
+            Generating your case study draft...
+          </p>
+        )}
 
-        {/* This explanatory line is intentionally hidden while generating. */}
-        <div className="space-y-4">
-          <section className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-4">
+        <div className="divide-y divide-zinc-800 rounded-xl border border-zinc-800 bg-zinc-900/40">
+          <section className="p-4">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500">
               The Problem
             </p>
             {problemPreview ? (
-              <p className="mt-3 text-sm leading-relaxed text-zinc-200">
-                {problemPreview}
-              </p>
+              <TypewriterParagraph key={problemPreview} text={problemPreview} />
             ) : (
               <div className="mt-3 animate-pulse space-y-2">
                 <div className="h-3 w-full rounded bg-zinc-800" />
@@ -238,14 +259,12 @@ const DraftOutput = ({
             )}
           </section>
 
-          <section className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-4">
+          <section className="p-4">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500">
               Process &amp; Approach
             </p>
             {processPreview ? (
-              <p className="mt-3 text-sm leading-relaxed text-zinc-200">
-                {processPreview}
-              </p>
+              <TypewriterParagraph key={processPreview} text={processPreview} />
             ) : (
               <div className="mt-3 animate-pulse space-y-2">
                 <div className="h-3 w-full rounded bg-zinc-800" />
@@ -255,14 +274,12 @@ const DraftOutput = ({
             )}
           </section>
 
-          <section className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-4">
+          <section className="p-4">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500">
               Solution
             </p>
             {solutionPreview ? (
-              <p className="mt-3 text-sm leading-relaxed text-zinc-200">
-                {solutionPreview}
-              </p>
+              <TypewriterParagraph key={solutionPreview} text={solutionPreview} />
             ) : (
               <div className="mt-3 animate-pulse space-y-2">
                 <div className="h-3 w-full rounded bg-zinc-800" />
@@ -272,14 +289,12 @@ const DraftOutput = ({
             )}
           </section>
 
-          <section className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-4">
+          <section className="p-4">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500">
               Feedback
             </p>
             {feedbackPreview ? (
-              <p className="mt-3 text-sm leading-relaxed text-zinc-200">
-                {feedbackPreview}
-              </p>
+              <TypewriterParagraph key={feedbackPreview} text={feedbackPreview} />
             ) : (
               <div className="mt-3 animate-pulse space-y-2">
                 <div className="h-3 w-full rounded bg-zinc-800" />
@@ -289,14 +304,12 @@ const DraftOutput = ({
             )}
           </section>
 
-          <section className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-4">
+          <section className="p-4">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500">
               Learnings
             </p>
             {learningsPreview ? (
-              <p className="mt-3 text-sm leading-relaxed text-zinc-200">
-                {learningsPreview}
-              </p>
+              <TypewriterParagraph key={learningsPreview} text={learningsPreview} />
             ) : (
               <div className="mt-3 animate-pulse space-y-2">
                 <div className="h-3 w-full rounded bg-zinc-800" />
@@ -332,71 +345,86 @@ const DraftOutput = ({
 
   if (!draft) return null;
 
-  return (
-    <section className="space-y-5 rounded-2xl border border-zinc-800 bg-zinc-950/80 p-5 shadow-lg shadow-black/40 ring-1 ring-zinc-900/60 backdrop-blur-sm sm:p-6">
-      <header className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-        <div className="space-y-1">
-          <h2 className="text-sm font-semibold uppercase tracking-[0.18em] text-zinc-400">
-            Draft
-          </h2>
-          <p className="text-xs text-zinc-500">This is a draft — edit before publishing.</p>
+  // Show final draft once animations are complete
+  if (showFinalDraft && draft) {
+    return (
+      <section className="space-y-5 rounded-2xl border border-zinc-800 bg-zinc-950/80 p-5 shadow-lg shadow-black/40 ring-1 ring-zinc-900/60 backdrop-blur-sm sm:p-6">
+        <header className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div className="space-y-1">
+            <h2 className="text-sm font-semibold uppercase tracking-[0.18em] text-zinc-400">
+              Draft
+            </h2>
+            <p className="text-xs text-zinc-500">This is a draft — edit before publishing.</p>
+          </div>
+
+          <button
+            type="button"
+            onClick={handleCopyAll}
+            className="inline-flex h-[44px] items-center justify-center rounded-full bg-zinc-100 px-5 text-sm font-semibold text-zinc-900 shadow-sm transition hover:bg-zinc-200"
+          >
+            {copied ? "Copied!" : "Copy all"}
+          </button>
+        </header>
+
+        <div className="divide-y divide-zinc-800 rounded-xl border border-zinc-800 bg-zinc-900/40">
+          <section className="p-4">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500">
+              The Problem
+            </p>
+            <p className="mt-3 whitespace-pre-wrap text-sm leading-relaxed text-zinc-200">
+              {draft.problem}
+            </p>
+          </section>
+
+          <section className="p-4">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500">
+              Process &amp; Approach
+            </p>
+            <p className="mt-3 whitespace-pre-wrap text-sm leading-relaxed text-zinc-200">
+              {draft.process}
+            </p>
+          </section>
+
+          <section className="p-4">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500">
+              Solution
+            </p>
+            <p className="mt-3 whitespace-pre-wrap text-sm leading-relaxed text-zinc-200">
+              {draft.solution}
+            </p>
+          </section>
+
+          <section className="p-4">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500">
+              Feedback
+            </p>
+            <p className="mt-3 whitespace-pre-wrap text-sm leading-relaxed text-zinc-200">
+              {draft.feedback}
+            </p>
+          </section>
+
+          <section className="p-4">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500">
+              Learnings
+            </p>
+            <p className="mt-3 whitespace-pre-wrap text-sm leading-relaxed text-zinc-200">
+              {draft.learnings}
+            </p>
+          </section>
         </div>
 
         <button
           type="button"
-          onClick={handleCopyAll}
-          className="inline-flex h-[44px] items-center justify-center rounded-full bg-zinc-100 px-5 text-sm font-semibold text-zinc-900 shadow-sm transition hover:bg-zinc-200"
+          onClick={handleDownload}
+          className="inline-flex h-[44px] w-full items-center justify-center rounded-full border border-zinc-700 bg-zinc-900/60 px-6 text-sm font-semibold text-zinc-100 shadow-sm transition hover:bg-zinc-900"
         >
-          {copied ? "Copied!" : "Copy all"}
+          Download as .txt
         </button>
-      </header>
+      </section>
+    );
+  }
 
-      <div className="divide-y divide-zinc-800 rounded-xl border border-zinc-800 bg-zinc-900/40">
-        <section className="p-4">
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500">
-            The Problem
-          </p>
-          <TypewriterParagraph key={draft.problem} text={draft.problem} />
-        </section>
-
-        <section className="p-4">
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500">
-            Process &amp; Approach
-          </p>
-          <TypewriterParagraph key={draft.process} text={draft.process} />
-        </section>
-
-        <section className="p-4">
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500">
-            Solution
-          </p>
-          <TypewriterParagraph key={draft.solution} text={draft.solution} />
-        </section>
-
-        <section className="p-4">
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500">
-            Feedback
-          </p>
-          <TypewriterParagraph key={draft.feedback} text={draft.feedback} />
-        </section>
-
-        <section className="p-4">
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500">
-            Learnings
-          </p>
-          <TypewriterParagraph key={draft.learnings} text={draft.learnings} />
-        </section>
-      </div>
-
-      <button
-        type="button"
-        onClick={handleDownload}
-        className="inline-flex h-[44px] w-full items-center justify-center rounded-full border border-zinc-700 bg-zinc-900/60 px-6 text-sm font-semibold text-zinc-100 shadow-sm transition hover:bg-zinc-900"
-      >
-        Download as .txt
-      </button>
-    </section>
-  );
+  return null;
 };
 
 export default DraftOutput;

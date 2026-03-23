@@ -104,27 +104,41 @@ const InputForm = ({
     const files = event.target.files;
 
     if (!files) {
-      setImages([]);
-      setImageWarning(null);
       return;
     }
 
     const fileArray = Array.from(files);
-    const limitedFiles = fileArray.slice(0, 5);
-
-    const tooManyFilesSelected = fileArray.length > 5;
-    setImageWarning(
-      tooManyFilesSelected
-        ? "You can upload up to 5 images. Only the first 5 were selected."
-        : null,
-    );
-
-    const mapped: SelectedImage[] = limitedFiles.map((file) => ({
+    const newMapped: SelectedImage[] = fileArray.map((file) => ({
       file,
       previewUrl: URL.createObjectURL(file),
     }));
 
-    setImages(mapped);
+    // Append new images to existing ones, but limit to 5 total
+    setImages((prevImages) => {
+      const combined = [...prevImages, ...newMapped];
+      const limited = combined.slice(0, 5);
+
+      // Show warning if user tried to upload more than space allows
+      const totalAttempted = prevImages.length + fileArray.length;
+      if (totalAttempted > 5) {
+        setImageWarning(
+          `You can upload up to 5 images total. ${limited.length} image${limited.length === 1 ? "" : "s"} are selected.`,
+        );
+      } else {
+        setImageWarning(null);
+      }
+
+      return limited;
+    });
+  };
+
+  const handleRemoveImage = (index: number): void => {
+    setImages((prevImages) => {
+      const newImages = [...prevImages];
+      URL.revokeObjectURL(newImages[index].previewUrl);
+      newImages.splice(index, 1);
+      return newImages;
+    });
   };
 
   const handleGenerateClick = (event: MouseEvent<HTMLButtonElement>): void => {
@@ -304,7 +318,7 @@ const InputForm = ({
                   {images.length} image{images.length === 1 ? "" : "s"} selected
                 </p>
                 <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
-                  {images.map((image) => (
+                  {images.map((image, index) => (
                     <figure
                       key={image.file.name + image.file.lastModified}
                       className="group relative overflow-hidden rounded-lg border border-zinc-800 bg-zinc-900/80"
@@ -320,6 +334,14 @@ const InputForm = ({
                           {image.file.name}
                         </p>
                       </figcaption>
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveImage(index)}
+                        className="pointer-events-auto absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-red-600 text-white opacity-0 transition hover:bg-red-700 group-hover:opacity-100"
+                        title="Remove image"
+                      >
+                        <span className="text-sm font-bold">×</span>
+                      </button>
                     </figure>
                   ))}
                 </div>

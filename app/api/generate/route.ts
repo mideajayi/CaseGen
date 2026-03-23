@@ -80,7 +80,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     );
   }
 
-  const preferredModel = "gpt-4o";
+  const preferredModel = "gpt-5-mini";
   const fallbackModels = ["gpt-4o-mini"];
   const modelCandidates = [preferredModel, ...fallbackModels];
 

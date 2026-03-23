@@ -28,7 +28,7 @@ export default function Home() {
           </p>
         </header>
 
-        <section className="grid gap-6 md:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
+        <section className="grid gap-6 md:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] items-start">
           <InputForm
             isLoading={isLoading}
             onGenerationStart={() => {
