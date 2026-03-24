@@ -13,16 +13,16 @@ export default function Home() {
   const [streamText, setStreamText] = useState<string>("");
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-950 to-slate-900 px-4 py-10 text-slate-50">
-      <div className="mx-auto flex max-w-5xl flex-col gap-10 lg:gap-12">
-        <header className="space-y-4">
-          <p className="inline-flex items-center rounded-full bg-slate-900/80 px-3 py-1 text-xs font-medium text-slate-300 ring-1 ring-slate-700/80">
+    <main className="min-h-screen overflow-y-auto bg-gradient-to-b from-slate-950 via-slate-950 to-slate-900 px-4 py-10 text-slate-50">
+      <div className="mx-auto flex max-w-5xl flex-col gap-8 sm:gap-10 lg:gap-12">
+        <header className="space-y-3 sm:space-y-4">
+          <p className="inline-flex items-center rounded-full bg-slate-900/80 px-2 py-1 text-xs font-medium text-slate-300 ring-1 ring-slate-700/80">
             CaseGen · draft your UX case studies faster
           </p>
-          <h1 className="text-balance text-3xl font-semibold tracking-tight text-slate-50 sm:text-4xl lg:text-5xl">
+          <h1 className="text-balance text-2xl font-semibold tracking-tight text-slate-50 sm:text-3xl lg:text-5xl">
             Turn your messy project notes into structured case study drafts.
           </h1>
-          <p className="max-w-2xl text-sm text-slate-300 sm:text-base">
+          <p className="max-w-2xl text-base text-slate-300 sm:text-base lg:text-base">
             Paste your notes, add screenshots, and let CaseGen suggest a clear,
             narrative-style draft you can refine and publish.
           </p>

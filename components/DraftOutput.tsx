@@ -349,18 +349,18 @@ const DraftOutput = ({
   if (showFinalDraft && draft) {
     return (
       <section className="space-y-5 rounded-2xl border border-zinc-800 bg-zinc-950/80 p-5 shadow-lg shadow-black/40 ring-1 ring-zinc-900/60 backdrop-blur-sm sm:p-6">
-        <header className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <header className="flex flex-col gap-2 sm:gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div className="space-y-1">
-            <h2 className="text-sm font-semibold uppercase tracking-[0.18em] text-zinc-400">
+            <h2 className="text-xs font-semibold uppercase tracking-[0.16em] text-zinc-400 sm:text-sm">
               Draft
             </h2>
-            <p className="text-xs text-zinc-500">This is a draft — edit before publishing.</p>
+            <p className="text-xs text-zinc-500">Edit before publishing.</p>
           </div>
 
           <button
             type="button"
             onClick={handleCopyAll}
-            className="inline-flex h-[44px] items-center justify-center rounded-full bg-zinc-100 px-5 text-sm font-semibold text-zinc-900 shadow-sm transition hover:bg-zinc-200"
+            className="inline-flex h-[40px] w-full items-center justify-center rounded-full bg-zinc-100 px-4 text-base font-semibold text-zinc-900 shadow-sm transition hover:bg-zinc-200 sm:w-auto sm:h-[44px] sm:px-5"
           >
             {copied ? "Copied!" : "Copy all"}
           </button>
@@ -416,7 +416,7 @@ const DraftOutput = ({
         <button
           type="button"
           onClick={handleDownload}
-          className="inline-flex h-[44px] w-full items-center justify-center rounded-full border border-zinc-700 bg-zinc-900/60 px-6 text-sm font-semibold text-zinc-100 shadow-sm transition hover:bg-zinc-900"
+          className="inline-flex h-[44px] w-full items-center justify-center rounded-full border border-zinc-700 bg-zinc-900/60 px-6 text-base font-semibold text-zinc-100 shadow-sm transition hover:bg-zinc-900"
         >
           Download as .txt
         </button>

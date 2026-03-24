@@ -275,7 +275,7 @@ const InputForm = ({
             value={notes}
             onChange={handleNotesChange}
             rows={8}
-            className="w-full min-h-[160px] rounded-xl border border-zinc-800 bg-zinc-900/80 px-4 py-3 text-sm text-zinc-50 shadow-inner outline-none ring-0 transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-950/80 sm:min-h-[200px] sm:text-base"
+            className="w-full min-h-[160px] rounded-xl border border-zinc-800 bg-zinc-900/80 px-4 py-3 text-base text-zinc-50 shadow-inner outline-none ring-0 transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-950/80 sm:min-h-[200px]"
             placeholder="Paste anything relevant to your project: the brief, your design decisions, what you tested, user feedback, before/after metrics, what worked and what didn't. The more specific you are, the better the draft."
           />
           <p className="text-xs text-zinc-500">
@@ -290,14 +290,18 @@ const InputForm = ({
 
           <div className="flex flex-col gap-3 rounded-xl border border-dashed border-zinc-800 bg-zinc-900/50 p-4">
             <div className="flex flex-wrap items-center gap-3">
-              <label className="inline-flex cursor-pointer items-center justify-center rounded-full bg-zinc-100 px-4 py-2 text-xs font-medium text-zinc-900 shadow-sm transition hover:bg-zinc-200">
+              <label className="relative inline-flex cursor-pointer items-center justify-center rounded-full bg-zinc-100 px-4 py-2 text-xs font-medium text-zinc-900 shadow-sm transition hover:bg-zinc-200">
                 <span>Choose images</span>
                 <input
                   type="file"
                   accept="image/jpeg,image/png,image/webp"
                   multiple
-                  className="hidden"
-                  onChange={handleImageChange}
+                  className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
+                  onChange={(event) => {
+                    handleImageChange(event);
+                    const target = event.target as HTMLInputElement;
+                    target.value = "";
+                  }}
                 />
               </label>
               <span className="text-xs text-zinc-500">
@@ -317,7 +321,7 @@ const InputForm = ({
                 <p className="text-xs font-medium text-zinc-300">
                   {images.length} image{images.length === 1 ? "" : "s"} selected
                 </p>
-                <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
+                <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
                   {images.map((image, index) => (
                     <figure
                       key={image.file.name + image.file.lastModified}
@@ -327,7 +331,7 @@ const InputForm = ({
                       <img
                         src={image.previewUrl}
                         alt={image.file.name}
-                        className="h-20 w-full object-cover opacity-90 transition group-hover:opacity-100 sm:h-24"
+                        className="h-16 w-full object-cover opacity-90 transition group-hover:opacity-100 sm:h-20 lg:h-24"
                       />
                       <figcaption className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent px-1.5 pb-1.5 pt-4">
                         <p className="truncate text-[10px] text-zinc-100">
@@ -337,7 +341,7 @@ const InputForm = ({
                       <button
                         type="button"
                         onClick={() => handleRemoveImage(index)}
-                        className="pointer-events-auto absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-red-600 text-white opacity-0 transition hover:bg-red-700 group-hover:opacity-100"
+                        className="pointer-events-auto absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-red-600 text-white opacity-100 transition hover:bg-red-700 sm:opacity-0 sm:group-hover:opacity-100"
                         title="Remove image"
                       >
                         <span className="text-sm font-bold">×</span>
@@ -354,7 +358,7 @@ const InputForm = ({
           type="button"
           onClick={handleGenerateClick}
           disabled={isGenerateDisabled || isLoading}
-          className="mt-2 inline-flex h-[52px] w-full items-center justify-center rounded-full bg-indigo-600 px-6 text-sm font-semibold text-white shadow-lg shadow-indigo-900/40 transition hover:bg-indigo-500 disabled:cursor-not-allowed disabled:opacity-50"
+          className="mt-2 inline-flex h-[52px] w-full items-center justify-center rounded-full bg-indigo-600 px-6 text-base font-semibold text-white shadow-lg shadow-indigo-900/40 transition hover:bg-indigo-500 disabled:cursor-not-allowed disabled:opacity-50"
         >
           {isLoading ? "Generating…" : "Generate case study draft"}
         </button>
