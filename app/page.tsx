@@ -3,7 +3,7 @@
 import InputForm from "@/components/InputForm";
 import DraftOutput from "@/components/DraftOutput";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { CaseStudyDraft } from "@/components/DraftOutput";
 
 export default function Home() {
@@ -11,6 +11,15 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [streamText, setStreamText] = useState<string>("");
+
+  useEffect(() => {
+    if (!draft) return;
+
+    const target = document.getElementById("draft-output");
+    if (target) {
+      target.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, [draft]);
 
   return (
     <main className="min-h-screen overflow-y-auto bg-gradient-to-b from-slate-950 via-slate-950 to-slate-900 px-4 py-10 text-slate-50">
@@ -35,10 +44,12 @@ export default function Home() {
               setIsLoading(true);
               setError(null);
               setStreamText("");
+              setDraft(null);
             }}
             onGenerationError={(message) => {
               setIsLoading(false);
               setError(message);
+              setDraft(null);
               setStreamText("");
             }}
             onDraftGenerated={(newDraft) => {

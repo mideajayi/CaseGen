@@ -167,15 +167,15 @@ const DraftOutput = ({
 }: DraftOutputProps): ReactElement | null => {
   const [copied, setCopied] = useState<boolean>(false);
   const [showFinalDraft, setShowFinalDraft] = useState<boolean>(false);
+  const [loadingMessage, setLoadingMessage] = useState<string>("");
 
   // When draft becomes available, wait for typewriter animations to finish before showing final view
   useEffect(() => {
     if (draft && !isLoading) {
-      // Calculate time needed for the longest section to animate
       const sections = [draft.problem, draft.process, draft.solution, draft.feedback, draft.learnings];
-      const maxLength = Math.max(...sections.map(s => s.length));
-      const animationTime = maxLength * 16; // 16ms per character
-      
+      const maxLength = Math.max(...sections.map((s) => s.length));
+      const animationTime = maxLength * 16;
+
       const timer = window.setTimeout(() => {
         setShowFinalDraft(true);
       }, animationTime);
@@ -185,6 +185,26 @@ const DraftOutput = ({
       setShowFinalDraft(false);
     }
   }, [draft, isLoading]);
+
+  useEffect(() => {
+    if (!isLoading) {
+      setLoadingMessage("");
+      return;
+    }
+
+    setLoadingMessage("Reading your notes...");
+    const firstTimer = window.setTimeout(() => {
+      setLoadingMessage("Structuring your case study...");
+    }, 4000);
+    const secondTimer = window.setTimeout(() => {
+      setLoadingMessage("Almost there — refining the draft...");
+    }, 9000);
+
+    return () => {
+      window.clearTimeout(firstTimer);
+      window.clearTimeout(secondTimer);
+    };
+  }, [isLoading]);
 
   const plainText = useMemo(() => {
     if (!draft) return "";
@@ -225,23 +245,61 @@ const DraftOutput = ({
     ? extractJsonStringField(streamText, "learnings")
     : draft?.learnings || null;
 
-  if (isLoading || (!showFinalDraft && draft)) {
+  const rateLimitError = error?.toLowerCase().includes("rate limit");
+  const errorMessage = rateLimitError
+    ? "Too many requests — please wait 30 seconds and try again."
+    : `Something went wrong: ${error}. Please try again.`;
+
+  if (isLoading) {
+    return (
+      <section
+        id="draft-output"
+        className="space-y-5 rounded-2xl border border-zinc-800 bg-zinc-950/80 p-5 shadow-lg shadow-black/40 ring-1 ring-zinc-900/60 backdrop-blur-sm sm:p-6"
+      >
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <h2 className="text-sm font-semibold uppercase tracking-[0.18em] text-zinc-400">
+              Draft
+            </h2>
+            <p className="text-sm text-zinc-300">
+              {loadingMessage || "Generating your case study draft..."}
+            </p>
+          </div>
+          <div className="h-9 w-24 rounded-full bg-zinc-900/70 animate-pulse" />
+        </div>
+
+        <div className="divide-y divide-zinc-800 rounded-xl border border-zinc-800 bg-zinc-900/40">
+          {[
+            "The Problem",
+            "Process & Approach",
+            "Solution",
+            "Feedback",
+            "Learnings",
+          ].map((sectionTitle) => (
+            <section key={sectionTitle} className="p-4">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500">
+                {sectionTitle}
+              </p>
+              <div className="mt-3 space-y-2">
+                <div className="h-3 w-full rounded bg-zinc-800 animate-pulse" />
+                <div className="h-3 w-11/12 rounded bg-zinc-800 animate-pulse" />
+                <div className="h-3 w-10/12 rounded bg-zinc-800 animate-pulse" />
+              </div>
+            </section>
+          ))}
+        </div>
+      </section>
+    );
+  }
+
+  if (!showFinalDraft && draft) {
     return (
       <section className="space-y-5 rounded-2xl border border-zinc-800 bg-zinc-950/80 p-5 shadow-lg shadow-black/40 ring-1 ring-zinc-900/60 backdrop-blur-sm sm:p-6">
         <div className="flex items-center justify-between gap-3">
           <h2 className="text-sm font-semibold uppercase tracking-[0.18em] text-zinc-400">
             Draft
           </h2>
-          {isLoading && (
-            <div className="h-9 w-24 rounded-full bg-zinc-900/70 animate-pulse" />
-          )}
         </div>
-
-        {isLoading && (
-          <p className="text-sm text-zinc-300">
-            Generating your case study draft...
-          </p>
-        )}
 
         <div className="divide-y divide-zinc-800 rounded-xl border border-zinc-800 bg-zinc-900/40">
           <section className="p-4">
@@ -330,7 +388,7 @@ const DraftOutput = ({
           Draft
         </h2>
         <div className="rounded-xl border border-rose-900/60 bg-rose-950/40 p-4 text-sm text-rose-200">
-          Generation failed. {error}. Please try again.
+          {errorMessage}
         </div>
         <button
           type="button"
@@ -348,7 +406,7 @@ const DraftOutput = ({
   // Show final draft once animations are complete
   if (showFinalDraft && draft) {
     return (
-      <section className="space-y-5 rounded-2xl border border-zinc-800 bg-zinc-950/80 p-5 shadow-lg shadow-black/40 ring-1 ring-zinc-900/60 backdrop-blur-sm sm:p-6">
+      <section id="draft-output" className="space-y-5 rounded-2xl border border-zinc-800 bg-zinc-950/80 p-5 shadow-lg shadow-black/40 ring-1 ring-zinc-900/60 backdrop-blur-sm sm:p-6 fade-in">
         <header className="flex flex-col gap-2 sm:gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div className="space-y-1">
             <h2 className="text-xs font-semibold uppercase tracking-[0.16em] text-zinc-400 sm:text-sm">

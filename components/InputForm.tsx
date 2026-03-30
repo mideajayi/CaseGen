@@ -95,9 +95,13 @@ const InputForm = ({
   const [notes, setNotes] = useState<string>("");
   const [images, setImages] = useState<SelectedImage[]>([]);
   const [imageWarning, setImageWarning] = useState<string | null>(null);
+  const [validationError, setValidationError] = useState<string | null>(null);
 
   const handleNotesChange = (event: ChangeEvent<HTMLTextAreaElement>): void => {
     setNotes(event.target.value);
+    if (validationError) {
+      setValidationError(null);
+    }
   };
 
   const handleImageChange = (event: ChangeEvent<HTMLInputElement>): void => {
@@ -144,8 +148,14 @@ const InputForm = ({
   const handleGenerateClick = (event: MouseEvent<HTMLButtonElement>): void => {
     event.preventDefault();
 
+    if (notes.trim().length === 0) {
+      setValidationError("Please add your project notes before generating.");
+      return;
+    }
+
     void (async () => {
       try {
+        setValidationError(null);
         onGenerationStart();
         onStreamTextUpdate("");
 
@@ -248,8 +258,6 @@ const InputForm = ({
     })();
   };
 
-  const isGenerateDisabled = notes.trim().length === 0;
-
   return (
     <section className="flex flex-col gap-5 rounded-2xl border border-zinc-800 bg-zinc-950/80 p-5 shadow-lg shadow-black/40 ring-1 ring-zinc-900/60 backdrop-blur-sm sm:p-6">
    
@@ -278,9 +286,15 @@ const InputForm = ({
             className="w-full min-h-[160px] rounded-xl border border-zinc-800 bg-zinc-900/80 px-4 py-3 text-base text-zinc-50 shadow-inner outline-none ring-0 transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-950/80 sm:min-h-[200px]"
             placeholder="Paste anything relevant to your project: the brief, your design decisions, what you tested, user feedback, before/after metrics, what worked and what didn't. The more specific you are, the better the draft."
           />
-          <p className="text-xs text-zinc-500">
-            Minimum of a few sentences works best; the more specific the better.
-          </p>
+          {validationError ? (
+            <p className="text-sm font-medium text-rose-300">
+              {validationError}
+            </p>
+          ) : (
+            <p className="text-xs text-zinc-500">
+              Minimum of a few sentences works best; the more specific the better.
+            </p>
+          )}
         </label>
 
         <div className="space-y-3">
@@ -357,10 +371,17 @@ const InputForm = ({
         <button
           type="button"
           onClick={handleGenerateClick}
-          disabled={isGenerateDisabled || isLoading}
+          disabled={isLoading}
           className="mt-2 inline-flex h-[52px] w-full items-center justify-center rounded-full bg-indigo-600 px-6 text-base font-semibold text-white shadow-lg shadow-indigo-900/40 transition hover:bg-indigo-500 disabled:cursor-not-allowed disabled:opacity-50"
         >
-          {isLoading ? "Generating…" : "Generate case study draft"}
+          {isLoading ? (
+            <span className="inline-flex items-center gap-2">
+              <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+              Generating...
+            </span>
+          ) : (
+            "Generate case study draft"
+          )}
         </button>
       </div>
     </section>
