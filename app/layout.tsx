@@ -15,8 +15,34 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "CaseGen",
-  description:
-    "Generate polished case study drafts from your project notes and screenshots.",
+  description: "Generate structured case study drafts from your design notes",
+  manifest: "/manifest.json",
+  icons: [
+    {
+      rel: "icon",
+      url: "/icons/icon-192.png",
+      sizes: "192x192",
+      type: "image/png",
+    },
+    {
+      rel: "icon",
+      url: "/icons/icon-512.png",
+      sizes: "512x512",
+      type: "image/png",
+    },
+    {
+      rel: "apple-touch-icon",
+      url: "/icons/icon-192.png",
+      sizes: "192x192",
+    },
+  ],
+};
+
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  minimumScale: 1,
+  themeColor: "#09090b",
 };
 
 export default function RootLayout({
@@ -27,8 +53,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        {/* PWA meta tags placeholder */}
-        <meta name="theme-color" content="#0f172a" />
+        <meta name="application-name" content="CaseGen" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="apple-mobile-web-app-title" content="CaseGen" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="theme-color" content="#09090b" />
         <link rel="manifest" href="/manifest.json" />
       </head>
       <body
