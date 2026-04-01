@@ -33,12 +33,10 @@ export default function Home() {
       <div className="relative mx-auto flex w-full max-w-3xl flex-col gap-10 sm:gap-12 lg:gap-14">
         <section className="mx-auto w-full max-w-2xl text-center">
           <h1 className="text-4xl font-bold tracking-tight text-neutral-950 sm:text-5xl lg:text-6xl">
-            Notes. Screens.
-            <span className="block sm:inline sm:pl-2">Draft.</span>
+            Notes in. Case study out.
           </h1>
           <p className="mx-auto mt-4 max-w-lg text-base leading-relaxed text-neutral-500 sm:text-lg">
-            Paste project notes, add screenshots, and get a structured case study
-            you can edit and publish.
+            Stop staring at a blank page. Start with what you have.
           </p>
         </section>
 
@@ -65,33 +63,6 @@ export default function Home() {
             }}
             onStreamTextUpdate={(text) => setStreamText(text)}
           />
-
-          <div className="flex flex-wrap items-center justify-center gap-2">
-            {[
-              "Problem → process → solution",
-              "Up to 5 screenshots",
-              "Copy or download .txt",
-            ].map((label) => (
-              <span
-                key={label}
-                className="inline-flex items-center gap-1.5 rounded-full border border-neutral-200 bg-white px-4 py-2 text-sm font-medium text-neutral-800 shadow-sm"
-              >
-                {label}
-                <svg
-                  className="h-3.5 w-3.5 text-neutral-400"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  aria-hidden
-                >
-                  <path d="M7 17L17 7M7 7h10v10" />
-                </svg>
-              </span>
-            ))}
-          </div>
 
           <DraftOutput
             draft={draft}

@@ -397,12 +397,8 @@ const InputForm = ({
         </div>
       </div>
 
-      {validationError ? (
+      {validationError && (
         <p className="text-sm font-medium text-red-600">{validationError}</p>
-      ) : (
-        <p className="text-center text-sm text-neutral-500">
-          A few detailed sentences work best; specificity improves the draft.
-        </p>
       )}
 
       {imageWarning && (
