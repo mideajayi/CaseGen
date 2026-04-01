@@ -42,7 +42,7 @@ export const viewport = {
   width: "device-width",
   initialScale: 1,
   minimumScale: 1,
-  themeColor: "#09090b",
+  themeColor: "#ffffff",
 };
 
 export default function RootLayout({
@@ -55,14 +55,14 @@ export default function RootLayout({
       <head>
         <meta name="application-name" content="CaseGen" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="apple-mobile-web-app-title" content="CaseGen" />
         <meta name="mobile-web-app-capable" content="yes" />
-        <meta name="theme-color" content="#09090b" />
+        <meta name="theme-color" content="#ffffff" />
         <link rel="manifest" href="/manifest.json" />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} bg-slate-950 antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} bg-white font-sans text-neutral-950 antialiased`}
       >
         {children}
       </body>

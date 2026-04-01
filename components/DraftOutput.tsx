@@ -102,7 +102,7 @@ const TypewriterParagraph = ({ text }: { text: string }): ReactElement => {
   }, [text]);
 
   return (
-    <p className="mt-3 whitespace-pre-wrap text-sm leading-relaxed text-zinc-200">
+    <p className="mt-3 whitespace-pre-wrap text-sm leading-relaxed text-neutral-800">
       {displayText}
     </p>
   );
@@ -254,21 +254,21 @@ const DraftOutput = ({
     return (
       <section
         id="draft-output"
-        className="space-y-5 rounded-2xl border border-zinc-800 bg-zinc-950/80 p-5 shadow-lg shadow-black/40 ring-1 ring-zinc-900/60 backdrop-blur-sm sm:p-6"
+        className="space-y-5 rounded-2xl border border-neutral-200 bg-white p-5 shadow-[0_1px_2px_rgba(0,0,0,0.05)] sm:p-6"
       >
         <div className="flex items-center justify-between gap-3">
           <div>
-            <h2 className="text-sm font-semibold uppercase tracking-[0.18em] text-zinc-400">
+            <h2 className="text-sm font-semibold uppercase tracking-[0.18em] text-neutral-500">
               Draft
             </h2>
-            <p className="text-sm text-zinc-300">
+            <p className="text-sm text-neutral-600">
               {loadingMessage || "Generating your case study draft..."}
             </p>
           </div>
-          <div className="h-9 w-24 rounded-full bg-zinc-900/70 animate-pulse" />
+          <div className="h-9 w-24 animate-pulse rounded-full bg-neutral-200" />
         </div>
 
-        <div className="divide-y divide-zinc-800 rounded-xl border border-zinc-800 bg-zinc-900/40">
+        <div className="divide-y divide-neutral-200 rounded-xl border border-neutral-200 bg-neutral-50/80">
           {[
             "The Problem",
             "Process & Approach",
@@ -277,13 +277,13 @@ const DraftOutput = ({
             "Learnings",
           ].map((sectionTitle) => (
             <section key={sectionTitle} className="p-4">
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">
                 {sectionTitle}
               </p>
               <div className="mt-3 space-y-2">
-                <div className="h-3 w-full rounded bg-zinc-800 animate-pulse" />
-                <div className="h-3 w-11/12 rounded bg-zinc-800 animate-pulse" />
-                <div className="h-3 w-10/12 rounded bg-zinc-800 animate-pulse" />
+                <div className="h-3 w-full animate-pulse rounded bg-neutral-200" />
+                <div className="h-3 w-11/12 animate-pulse rounded bg-neutral-200" />
+                <div className="h-3 w-10/12 animate-pulse rounded bg-neutral-200" />
               </div>
             </section>
           ))}
@@ -294,85 +294,85 @@ const DraftOutput = ({
 
   if (!showFinalDraft && draft) {
     return (
-      <section className="space-y-5 rounded-2xl border border-zinc-800 bg-zinc-950/80 p-5 shadow-lg shadow-black/40 ring-1 ring-zinc-900/60 backdrop-blur-sm sm:p-6">
+      <section className="space-y-5 rounded-2xl border border-neutral-200 bg-white p-5 shadow-[0_1px_2px_rgba(0,0,0,0.05)] sm:p-6">
         <div className="flex items-center justify-between gap-3">
-          <h2 className="text-sm font-semibold uppercase tracking-[0.18em] text-zinc-400">
+          <h2 className="text-sm font-semibold uppercase tracking-[0.18em] text-neutral-500">
             Draft
           </h2>
         </div>
 
-        <div className="divide-y divide-zinc-800 rounded-xl border border-zinc-800 bg-zinc-900/40">
+        <div className="divide-y divide-neutral-200 rounded-xl border border-neutral-200 bg-neutral-50/80">
           <section className="p-4">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">
               The Problem
             </p>
             {problemPreview ? (
               <TypewriterParagraph key={problemPreview} text={problemPreview} />
             ) : (
               <div className="mt-3 animate-pulse space-y-2">
-                <div className="h-3 w-full rounded bg-zinc-800" />
-                <div className="h-3 w-11/12 rounded bg-zinc-800" />
-                <div className="h-3 w-10/12 rounded bg-zinc-800" />
+                <div className="h-3 w-full rounded bg-neutral-200" />
+                <div className="h-3 w-11/12 rounded bg-neutral-200" />
+                <div className="h-3 w-10/12 rounded bg-neutral-200" />
               </div>
             )}
           </section>
 
           <section className="p-4">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">
               Process &amp; Approach
             </p>
             {processPreview ? (
               <TypewriterParagraph key={processPreview} text={processPreview} />
             ) : (
               <div className="mt-3 animate-pulse space-y-2">
-                <div className="h-3 w-full rounded bg-zinc-800" />
-                <div className="h-3 w-11/12 rounded bg-zinc-800" />
-                <div className="h-3 w-10/12 rounded bg-zinc-800" />
+                <div className="h-3 w-full rounded bg-neutral-200" />
+                <div className="h-3 w-11/12 rounded bg-neutral-200" />
+                <div className="h-3 w-10/12 rounded bg-neutral-200" />
               </div>
             )}
           </section>
 
           <section className="p-4">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">
               Solution
             </p>
             {solutionPreview ? (
               <TypewriterParagraph key={solutionPreview} text={solutionPreview} />
             ) : (
               <div className="mt-3 animate-pulse space-y-2">
-                <div className="h-3 w-full rounded bg-zinc-800" />
-                <div className="h-3 w-11/12 rounded bg-zinc-800" />
-                <div className="h-3 w-10/12 rounded bg-zinc-800" />
+                <div className="h-3 w-full rounded bg-neutral-200" />
+                <div className="h-3 w-11/12 rounded bg-neutral-200" />
+                <div className="h-3 w-10/12 rounded bg-neutral-200" />
               </div>
             )}
           </section>
 
           <section className="p-4">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">
               Feedback
             </p>
             {feedbackPreview ? (
               <TypewriterParagraph key={feedbackPreview} text={feedbackPreview} />
             ) : (
               <div className="mt-3 animate-pulse space-y-2">
-                <div className="h-3 w-full rounded bg-zinc-800" />
-                <div className="h-3 w-11/12 rounded bg-zinc-800" />
-                <div className="h-3 w-10/12 rounded bg-zinc-800" />
+                <div className="h-3 w-full rounded bg-neutral-200" />
+                <div className="h-3 w-11/12 rounded bg-neutral-200" />
+                <div className="h-3 w-10/12 rounded bg-neutral-200" />
               </div>
             )}
           </section>
 
           <section className="p-4">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">
               Learnings
             </p>
             {learningsPreview ? (
               <TypewriterParagraph key={learningsPreview} text={learningsPreview} />
             ) : (
               <div className="mt-3 animate-pulse space-y-2">
-                <div className="h-3 w-full rounded bg-zinc-800" />
-                <div className="h-3 w-11/12 rounded bg-zinc-800" />
-                <div className="h-3 w-10/12 rounded bg-zinc-800" />
+                <div className="h-3 w-full rounded bg-neutral-200" />
+                <div className="h-3 w-11/12 rounded bg-neutral-200" />
+                <div className="h-3 w-10/12 rounded bg-neutral-200" />
               </div>
             )}
           </section>
@@ -383,17 +383,17 @@ const DraftOutput = ({
 
   if (error) {
     return (
-      <section className="space-y-4 rounded-2xl border border-zinc-800 bg-zinc-950/80 p-5 shadow-lg shadow-black/40 ring-1 ring-zinc-900/60 backdrop-blur-sm sm:p-6">
-        <h2 className="text-sm font-semibold uppercase tracking-[0.18em] text-zinc-400">
+      <section className="space-y-4 rounded-2xl border border-neutral-200 bg-white p-5 shadow-[0_1px_2px_rgba(0,0,0,0.05)] sm:p-6">
+        <h2 className="text-sm font-semibold uppercase tracking-[0.18em] text-neutral-500">
           Draft
         </h2>
-        <div className="rounded-xl border border-rose-900/60 bg-rose-950/40 p-4 text-sm text-rose-200">
+        <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-900">
           {errorMessage}
         </div>
         <button
           type="button"
           onClick={handleReset}
-          className="inline-flex h-[44px] w-full items-center justify-center rounded-full bg-zinc-100 px-5 text-sm font-semibold text-zinc-900 shadow-sm transition hover:bg-zinc-200"
+          className="inline-flex h-[44px] w-full items-center justify-center rounded-full bg-neutral-900 px-5 text-sm font-semibold text-white shadow-sm transition hover:bg-neutral-800"
         >
           Try again
         </button>
@@ -406,66 +406,69 @@ const DraftOutput = ({
   // Show final draft once animations are complete
   if (showFinalDraft && draft) {
     return (
-      <section id="draft-output" className="space-y-5 rounded-2xl border border-zinc-800 bg-zinc-950/80 p-5 shadow-lg shadow-black/40 ring-1 ring-zinc-900/60 backdrop-blur-sm sm:p-6 fade-in">
-        <header className="flex flex-col gap-2 sm:gap-3 sm:flex-row sm:items-start sm:justify-between">
+      <section
+        id="draft-output"
+        className="fade-in space-y-5 rounded-2xl border border-neutral-200 bg-white p-5 shadow-[0_1px_2px_rgba(0,0,0,0.05)] sm:p-6"
+      >
+        <header className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-3">
           <div className="space-y-1">
-            <h2 className="text-xs font-semibold uppercase tracking-[0.16em] text-zinc-400 sm:text-sm">
+            <h2 className="text-xs font-semibold uppercase tracking-[0.16em] text-neutral-500 sm:text-sm">
               Draft
             </h2>
-            <p className="text-xs text-zinc-500">Edit before publishing.</p>
+            <p className="text-xs text-neutral-500">Edit before publishing.</p>
           </div>
 
           <button
             type="button"
             onClick={handleCopyAll}
-            className="inline-flex h-[40px] w-full items-center justify-center rounded-full bg-zinc-100 px-4 text-base font-semibold text-zinc-900 shadow-sm transition hover:bg-zinc-200 sm:w-auto sm:h-[44px] sm:px-5"
+            className="inline-flex h-[44px] w-full items-center justify-center rounded-full bg-neutral-900 px-4 text-base font-semibold text-white shadow-sm transition hover:bg-neutral-800 sm:w-auto sm:px-5"
           >
             {copied ? "Copied!" : "Copy all"}
           </button>
         </header>
 
-        <div className="divide-y divide-zinc-800 rounded-xl border border-zinc-800 bg-zinc-900/40">
+        <div className="divide-y divide-neutral-200 rounded-xl border border-neutral-200 bg-neutral-50/80">
           <section className="p-4">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">
               The Problem
             </p>
-            <p className="mt-3 whitespace-pre-wrap text-sm leading-relaxed text-zinc-200">
+            <p className="mt-3 whitespace-pre-wrap text-sm leading-relaxed text-neutral-800">
               {draft.problem}
             </p>
           </section>
 
           <section className="p-4">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">
               Process &amp; Approach
             </p>
-            <p className="mt-3 whitespace-pre-wrap text-sm leading-relaxed text-zinc-200">
+            <p className="mt-3 whitespace-pre-wrap text-sm leading-relaxed text-neutral-800">
               {draft.process}
             </p>
           </section>
 
           <section className="p-4">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">
               Solution
             </p>
-            <p className="mt-3 whitespace-pre-wrap text-sm leading-relaxed text-zinc-200">
+            <p className="mt-3 whitespace-pre-wrap text-sm leading-relaxed text-neutral-800">
               {draft.solution}
             </p>
           </section>
 
           <section className="p-4">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">
               Feedback
             </p>
-            <p className="mt-3 whitespace-pre-wrap text-sm leading-relaxed text-zinc-200">
+            <p className="mt-3 whitespace-pre-wrap text-sm leading-relaxed text-neutral-800">
               {draft.feedback}
             </p>
           </section>
 
           <section className="p-4">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">
               Learnings
             </p>
-            <p className="mt-3 whitespace-pre-wrap text-sm leading-relaxed text-zinc-200">
+            <p className="mt-3 whitespace-pre-wrap text-sm leading-relaxed text-neutral-800">
               {draft.learnings}
             </p>
           </section>
@@ -474,7 +477,7 @@ const DraftOutput = ({
         <button
           type="button"
           onClick={handleDownload}
-          className="inline-flex h-[44px] w-full items-center justify-center rounded-full border border-zinc-700 bg-zinc-900/60 px-6 text-base font-semibold text-zinc-100 shadow-sm transition hover:bg-zinc-900"
+          className="inline-flex h-[44px] w-full items-center justify-center rounded-full border border-neutral-200 bg-white px-6 text-base font-semibold text-neutral-900 shadow-sm transition hover:bg-neutral-50"
         >
           Download as .txt
         </button>

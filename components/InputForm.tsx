@@ -259,53 +259,56 @@ const InputForm = ({
   };
 
   return (
-    <section className="flex flex-col gap-5 rounded-2xl border border-zinc-800 bg-zinc-950/80 p-5 shadow-lg shadow-black/40 ring-1 ring-zinc-900/60 backdrop-blur-sm sm:p-6">
-   
-    {/* I have removed the header because it is not needed for the app to work. */}
-  
-    {/*  <header className="space-y-2">
-        <h2 className="text-sm font-semibold uppercase tracking-[0.18em] text-zinc-400">
-          Inputs
-        </h2>
-        <p className="text-sm leading-relaxed text-zinc-200">
-          Paste your project notes below. Add screenshots if you have them.
-          CaseGen will generate a structured case study draft you can copy and
-          edit.
-        </p>
-      </header> */}
+    <section className="flex w-full flex-col gap-4">
+      <div className="relative overflow-hidden rounded-2xl bg-[#18181B] p-4 shadow-[0_1px_2px_rgba(0,0,0,0.06)] ring-1 ring-black/5 sm:rounded-[16px] sm:p-5">
+        <div
+          className="pointer-events-none absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-zinc-800/80 text-zinc-300"
+          aria-hidden
+        >
+          <svg
+            className="h-4 w-4"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.847a4.5 4.5 0 003.09 3.09L15.75 12l-2.847.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456zM16.894 20.567L16.5 21.75l-.394-1.183a2.25 2.25 0 00-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 001.423-1.423L16.5 15l.394 1.183a2.25 2.25 0 001.423 1.423L19.5 18.75l-1.183.394a2.25 2.25 0 00-1.423 1.423z" />
+          </svg>
+        </div>
 
-      <div className="space-y-4">
-        <label className="block space-y-2">
-          <span className="text-xs font-medium uppercase tracking-[0.18em] text-zinc-400">
-            Project notes
-          </span>
+        <label className="block">
+          <span className="sr-only">Project notes</span>
           <textarea
             value={notes}
             onChange={handleNotesChange}
-            rows={8}
-            className="w-full min-h-[160px] rounded-xl border border-zinc-800 bg-zinc-900/80 px-4 py-3 text-base text-zinc-50 shadow-inner outline-none ring-0 transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-950/80 sm:min-h-[200px]"
-            placeholder="Paste anything relevant to your project: the brief, your design decisions, what you tested, user feedback, before/after metrics, what worked and what didn't. The more specific you are, the better the draft."
+            rows={6}
+            className="w-full min-h-[140px] resize-none border-0 bg-transparent pr-10 pt-1 text-base leading-relaxed text-white placeholder:text-zinc-500 focus:outline-none focus:ring-0 sm:min-h-[168px]"
+            placeholder="Describe your project: brief, decisions, tests, feedback, metrics…"
           />
-          {validationError ? (
-            <p className="text-sm font-medium text-rose-300">
-              {validationError}
-            </p>
-          ) : (
-            <p className="text-xs text-zinc-500">
-              Minimum of a few sentences works best; the more specific the better.
-            </p>
-          )}
         </label>
 
-        <div className="space-y-3">
-          <p className="flex items-center justify-between gap-2 text-xs font-medium uppercase tracking-[0.18em] text-zinc-400">
-            <span>Add screenshots (optional — up to 5 images)</span>
-          </p>
-
-          <div className="flex flex-col gap-3 rounded-xl border border-dashed border-zinc-800 bg-zinc-900/50 p-4">
-            <div className="flex flex-wrap items-center gap-3">
-              <label className="relative inline-flex cursor-pointer items-center justify-center rounded-full bg-zinc-100 px-4 py-2 text-xs font-medium text-zinc-900 shadow-sm transition hover:bg-zinc-200">
-                <span>Choose images</span>
+        <div className="mt-3 flex min-h-[52px] flex-col gap-3 border-t border-white/10 pt-3 sm:flex-row sm:items-center sm:gap-3">
+          <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2 sm:gap-3">
+            <div className="group relative flex shrink-0 items-center">
+              <label
+                className="relative inline-flex min-h-[44px] cursor-pointer items-center justify-center gap-2 rounded-full bg-zinc-800 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-zinc-700 focus-within:ring-2 focus-within:ring-white/30 focus-within:ring-offset-2 focus-within:ring-offset-[#18181B]"
+                title="Optional · JPG, PNG, WebP"
+              >
+                <svg
+                  className="h-4 w-4 shrink-0 text-zinc-300"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden
+                >
+                  <path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48" />
+                </svg>
+                <span>Attach</span>
                 <input
                   type="file"
                   accept="image/jpeg,image/png,image/webp"
@@ -318,72 +321,95 @@ const InputForm = ({
                   }}
                 />
               </label>
-              <span className="text-xs text-zinc-500">
-                JPG, PNG, or WebP — we&apos;ll only use them to inform the
-                draft.
+              <span
+                className="pointer-events-none absolute bottom-full left-1/2 z-20 mb-2 w-max max-w-[min(100vw-2rem,16rem)] -translate-x-1/2 rounded-lg bg-zinc-900 px-3 py-2 text-center text-xs leading-snug text-zinc-100 opacity-0 shadow-lg ring-1 ring-white/10 transition-opacity duration-150 group-hover:opacity-100 group-focus-within:opacity-100 sm:left-0 sm:translate-x-0"
+                role="tooltip"
+              >
+                Optional · JPG, PNG, WebP
               </span>
             </div>
 
-            {imageWarning && (
-              <p className="text-xs font-medium text-amber-400">
-                {imageWarning}
-              </p>
-            )}
+            <span className="shrink-0 text-sm tabular-nums text-zinc-500">
+              {images.length}/5
+            </span>
 
             {images.length > 0 && (
-              <div className="space-y-2">
-                <p className="text-xs font-medium text-zinc-300">
-                  {images.length} image{images.length === 1 ? "" : "s"} selected
-                </p>
-                <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
-                  {images.map((image, index) => (
-                    <figure
-                      key={image.file.name + image.file.lastModified}
-                      className="group relative overflow-hidden rounded-lg border border-zinc-800 bg-zinc-900/80"
+              <div className="flex min-w-0 flex-1 items-center gap-2 overflow-x-auto pb-0.5 [scrollbar-width:thin]">
+                {images.map((image, index) => (
+                  <figure
+                    key={image.file.name + image.file.lastModified}
+                    className="group/thumb relative h-12 w-12 shrink-0 overflow-hidden rounded-lg border border-white/10 bg-zinc-900 sm:h-14 sm:w-14"
+                    title={image.file.name}
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={image.previewUrl}
+                      alt={image.file.name}
+                      className="h-full w-full object-cover"
+                    />
+                    <figcaption className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent px-1 pb-1 pt-3">
+                      <p className="truncate text-[8px] leading-tight text-white sm:text-[9px]">
+                        {image.file.name}
+                      </p>
+                    </figcaption>
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveImage(index)}
+                      className="absolute right-0.5 top-0.5 flex h-6 w-6 items-center justify-center rounded-full bg-black/60 text-white shadow-sm ring-1 ring-white/20 backdrop-blur-sm transition hover:bg-black/80"
+                      title="Remove image"
                     >
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={image.previewUrl}
-                        alt={image.file.name}
-                        className="h-16 w-full object-cover opacity-90 transition group-hover:opacity-100 sm:h-20 lg:h-24"
-                      />
-                      <figcaption className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent px-1.5 pb-1.5 pt-4">
-                        <p className="truncate text-[10px] text-zinc-100">
-                          {image.file.name}
-                        </p>
-                      </figcaption>
-                      <button
-                        type="button"
-                        onClick={() => handleRemoveImage(index)}
-                        className="pointer-events-auto absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-red-600 text-white opacity-100 transition hover:bg-red-700 sm:opacity-0 sm:group-hover:opacity-100"
-                        title="Remove image"
-                      >
-                        <span className="text-sm font-bold">×</span>
-                      </button>
-                    </figure>
-                  ))}
-                </div>
+                      <span className="text-sm font-semibold leading-none">
+                        ×
+                      </span>
+                    </button>
+                  </figure>
+                ))}
               </div>
             )}
           </div>
-        </div>
 
-        <button
-          type="button"
-          onClick={handleGenerateClick}
-          disabled={isLoading}
-          className="mt-2 inline-flex h-[52px] w-full items-center justify-center rounded-full bg-indigo-600 px-6 text-base font-semibold text-white shadow-lg shadow-indigo-900/40 transition hover:bg-indigo-500 disabled:cursor-not-allowed disabled:opacity-50"
-        >
-          {isLoading ? (
-            <span className="inline-flex items-center gap-2">
-              <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
-              Generating...
-            </span>
-          ) : (
-            "Generate case study draft"
-          )}
-        </button>
+          <button
+            type="button"
+            onClick={handleGenerateClick}
+            disabled={isLoading}
+            className="inline-flex h-11 min-h-[44px] w-11 shrink-0 items-center justify-center self-end rounded-full bg-white text-neutral-900 shadow-sm transition hover:bg-zinc-100 disabled:cursor-not-allowed disabled:opacity-50 sm:self-auto"
+            aria-label={
+              isLoading ? "Generating draft" : "Generate case study draft"
+            }
+          >
+            {isLoading ? (
+              <span className="h-5 w-5 animate-spin rounded-full border-2 border-neutral-300 border-t-neutral-900" />
+            ) : (
+              <svg
+                className="h-5 w-5"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden
+              >
+                <path d="M5 12h14M13 6l6 6-6 6" />
+              </svg>
+            )}
+          </button>
+        </div>
       </div>
+
+      {validationError ? (
+        <p className="text-sm font-medium text-red-600">{validationError}</p>
+      ) : (
+        <p className="text-center text-sm text-neutral-500">
+          A few detailed sentences work best; specificity improves the draft.
+        </p>
+      )}
+
+      {imageWarning && (
+        <p className="text-center text-sm font-medium text-amber-700">
+          {imageWarning}
+        </p>
+      )}
     </section>
   );
 };
