@@ -1,8 +1,13 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #0a0a0a;
+  /* Figma Landing: canvas + brand */
+  --background: #fafafa;
+  --foreground: #3f3f3f;
+  --casegen-brand: #082cd0;
+  --casegen-brand-hover: #061fa8;
+  --casegen-card-border: #f2f5fc;
+  --casegen-result-border: #eeeeee;
 }
 
 @theme inline {

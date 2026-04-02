@@ -260,44 +260,33 @@ const InputForm = ({
 
   return (
     <section className="flex w-full flex-col gap-4">
-      <div className="relative overflow-hidden rounded-2xl bg-[#18181B] p-4 shadow-[0_1px_2px_rgba(0,0,0,0.06)] ring-1 ring-black/5 sm:rounded-[16px] sm:p-5">
-        <div
-          className="pointer-events-none absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-zinc-800/80 text-zinc-300"
-          aria-hidden
-        >
-          <svg
-            className="h-4 w-4"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.847a4.5 4.5 0 003.09 3.09L15.75 12l-2.847.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456zM16.894 20.567L16.5 21.75l-.394-1.183a2.25 2.25 0 00-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 001.423-1.423L16.5 15l.394 1.183a2.25 2.25 0 001.423 1.423L19.5 18.75l-1.183.394a2.25 2.25 0 00-1.423 1.423z" />
-          </svg>
-        </div>
-
+      {/* Figma "Input Card": white, 16px radius, hairline border */}
+      <div className="rounded-2xl border border-[#f2f5fc] bg-white p-4 sm:p-4">
         <label className="block">
           <span className="sr-only">Project notes</span>
           <textarea
             value={notes}
             onChange={handleNotesChange}
             rows={6}
-            className="w-full min-h-[140px] resize-none border-0 bg-transparent pr-10 pt-1 text-base leading-relaxed text-white placeholder:text-zinc-500 focus:outline-none focus:ring-0 sm:min-h-[168px]"
+            className="w-full min-h-[80px] resize-none border-0 bg-transparent p-0 text-base leading-relaxed text-[#3f3f3f] placeholder:text-[#c1c2c6] focus:outline-none focus:ring-0 sm:min-h-[80px]"
             placeholder="Describe your project: brief, decisions, tests, feedback, metrics…"
           />
         </label>
 
-        <div className="mt-3 flex min-h-[52px] flex-col gap-3 border-t border-white/10 pt-3 sm:flex-row sm:items-center sm:gap-3">
-          <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2 sm:gap-3">
+        <div
+          className="my-4 h-px w-full bg-[#f2f5fc]"
+          aria-hidden
+        />
+
+        <div className="flex min-h-9 flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2 sm:gap-2">
             <div className="group relative flex shrink-0 items-center">
               <label
-                className="relative inline-flex min-h-[44px] cursor-pointer items-center justify-center gap-2 rounded-full bg-zinc-800 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-zinc-700 focus-within:ring-2 focus-within:ring-white/30 focus-within:ring-offset-2 focus-within:ring-offset-[#18181B]"
+                className="relative inline-flex h-9 min-h-[36px] cursor-pointer items-center justify-center gap-1 rounded-full bg-[#f2f5fc] px-3 py-2 text-sm font-medium text-[#636678] transition hover:bg-[#e8edf8] focus-within:ring-2 focus-within:ring-[#082cd0]/25 focus-within:ring-offset-2 focus-within:ring-offset-white"
                 title="Optional · JPG, PNG, WebP"
               >
                 <svg
-                  className="h-4 w-4 shrink-0 text-zinc-300"
+                  className="h-4 w-4 shrink-0 text-[#636678]"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
@@ -322,14 +311,14 @@ const InputForm = ({
                 />
               </label>
               <span
-                className="pointer-events-none absolute bottom-full left-1/2 z-20 mb-2 w-max max-w-[min(100vw-2rem,16rem)] -translate-x-1/2 rounded-lg bg-zinc-900 px-3 py-2 text-center text-xs leading-snug text-zinc-100 opacity-0 shadow-lg ring-1 ring-white/10 transition-opacity duration-150 group-hover:opacity-100 group-focus-within:opacity-100 sm:left-0 sm:translate-x-0"
+                className="pointer-events-none absolute bottom-full left-1/2 z-20 mb-2 w-max max-w-[min(100vw-2rem,16rem)] -translate-x-1/2 rounded-lg border border-neutral-200 bg-white px-3 py-2 text-center text-xs leading-snug text-neutral-700 opacity-0 shadow-md transition-opacity duration-150 group-hover:opacity-100 group-focus-within:opacity-100 sm:left-0 sm:translate-x-0"
                 role="tooltip"
               >
                 Optional · JPG, PNG, WebP
               </span>
             </div>
 
-            <span className="shrink-0 text-sm tabular-nums text-zinc-500">
+            <span className="shrink-0 text-sm tabular-nums text-[#a0a5b5]">
               {images.length}/5
             </span>
 
@@ -338,7 +327,7 @@ const InputForm = ({
                 {images.map((image, index) => (
                   <figure
                     key={image.file.name + image.file.lastModified}
-                    className="group/thumb relative h-12 w-12 shrink-0 overflow-hidden rounded-lg border border-white/10 bg-zinc-900 sm:h-14 sm:w-14"
+                    className="group/thumb relative h-12 w-12 shrink-0 overflow-hidden rounded-lg border border-[#eeeeee] bg-neutral-100 sm:h-14 sm:w-14"
                     title={image.file.name}
                   >
                     {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -347,7 +336,7 @@ const InputForm = ({
                       alt={image.file.name}
                       className="h-full w-full object-cover"
                     />
-                    <figcaption className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent px-1 pb-1 pt-3">
+                    <figcaption className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/75 to-transparent px-1 pb-1 pt-3">
                       <p className="truncate text-[8px] leading-tight text-white sm:text-[9px]">
                         {image.file.name}
                       </p>
@@ -355,7 +344,7 @@ const InputForm = ({
                     <button
                       type="button"
                       onClick={() => handleRemoveImage(index)}
-                      className="absolute right-0.5 top-0.5 flex h-6 w-6 items-center justify-center rounded-full bg-black/60 text-white shadow-sm ring-1 ring-white/20 backdrop-blur-sm transition hover:bg-black/80"
+                      className="absolute right-0.5 top-0.5 flex h-6 w-6 items-center justify-center rounded-full bg-white/95 text-[#3f3f3f] shadow-sm ring-1 ring-black/10 transition hover:bg-white"
                       title="Remove image"
                     >
                       <span className="text-sm font-semibold leading-none">
@@ -372,13 +361,13 @@ const InputForm = ({
             type="button"
             onClick={handleGenerateClick}
             disabled={isLoading}
-            className="inline-flex h-11 min-h-[44px] w-11 shrink-0 items-center justify-center self-end rounded-full bg-white text-neutral-900 shadow-sm transition hover:bg-zinc-100 disabled:cursor-not-allowed disabled:opacity-50 sm:self-auto"
+            className="inline-flex h-9 min-h-[36px] w-9 shrink-0 items-center justify-center self-end rounded-full bg-[#082cd0] text-white shadow-sm transition hover:bg-[#061fa8] disabled:cursor-not-allowed disabled:opacity-50 sm:self-auto"
             aria-label={
               isLoading ? "Generating draft" : "Generate case study draft"
             }
           >
             {isLoading ? (
-              <span className="h-5 w-5 animate-spin rounded-full border-2 border-neutral-300 border-t-neutral-900" />
+              <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
             ) : (
               <svg
                 className="h-5 w-5"

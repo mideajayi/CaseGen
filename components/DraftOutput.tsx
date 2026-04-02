@@ -60,6 +60,23 @@ const copyToClipboard = async (text: string): Promise<void> => {
   document.body.removeChild(textarea);
 };
 
+// Renders a small clipboard icon for primary actions (matches Figma "Copy" instance).
+const CopyIcon = (): ReactElement => (
+  <svg
+    className="h-5 w-5 shrink-0"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.5"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden
+  >
+    <path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2" />
+    <path d="M15 2H9a1 1 0 00-1 1v2a1 1 0 001 1h6a1 1 0 001-1V3a1 1 0 00-1-1z" />
+  </svg>
+);
+
 // Triggers a download of the provided text as a .txt file in the browser.
 const downloadTextFile = (filename: string, text: string): void => {
   const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
@@ -102,7 +119,7 @@ const TypewriterParagraph = ({ text }: { text: string }): ReactElement => {
   }, [text]);
 
   return (
-    <p className="mt-3 whitespace-pre-wrap text-sm leading-relaxed text-neutral-800">
+    <p className="mt-3 whitespace-pre-wrap text-sm leading-relaxed text-[#3f3f3f]">
       {displayText}
     </p>
   );
@@ -155,6 +172,53 @@ const extractJsonStringField = (text: string, key: string): string | null => {
   } catch {
     return null;
   }
+};
+
+// Chevron icon for expand/collapse
+const ChevronIcon = ({ expanded }: { expanded: boolean }): ReactElement => (
+  <svg
+    className={`h-4 w-4 shrink-0 text-[#808080] transition-transform duration-200 ${expanded ? "rotate-180" : ""}`}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden
+  >
+    <path d="m6 9 6 6 6-6" />
+  </svg>
+);
+
+// Collapsible section component
+const CollapsibleSection = ({
+  title,
+  content,
+  defaultExpanded = true,
+}: {
+  title: string;
+  content: string;
+  defaultExpanded?: boolean;
+}): ReactElement => {
+  const [expanded, setExpanded] = useState<boolean>(defaultExpanded);
+
+  return (
+    <section className="px-3 py-4 sm:px-4">
+      <button
+        type="button"
+        onClick={() => setExpanded(!expanded)}
+        className="flex w-full items-center justify-between text-left"
+      >
+        <p className="text-xs font-medium text-[#808080]">{title}</p>
+        <ChevronIcon expanded={expanded} />
+      </button>
+      {expanded && (
+        <p className="mt-3 whitespace-pre-wrap text-sm leading-relaxed text-[#3f3f3f]">
+          {content}
+        </p>
+      )}
+    </section>
+  );
 };
 
 // Renders the generated draft with copy and download actions, plus loading/error states.
@@ -254,21 +318,19 @@ const DraftOutput = ({
     return (
       <section
         id="draft-output"
-        className="space-y-5 rounded-2xl border border-neutral-200 bg-white p-5 shadow-[0_1px_2px_rgba(0,0,0,0.05)] sm:p-6"
+        className="space-y-4 rounded-2xl border border-[#eeeeee] bg-white p-4"
       >
-        <div className="flex items-center justify-between gap-3">
-          <div>
-            <h2 className="text-sm font-semibold uppercase tracking-[0.18em] text-neutral-500">
-              Draft
-            </h2>
-            <p className="text-sm text-neutral-600">
+        <div className="flex items-start justify-between gap-3">
+          <div className="space-y-1">
+            <h2 className="text-base font-medium text-[#3f3f3f]">Draft</h2>
+            <p className="text-sm text-[#c3c3c3]">
               {loadingMessage || "Generating your case study draft..."}
             </p>
           </div>
-          <div className="h-9 w-24 animate-pulse rounded-full bg-neutral-200" />
+          <div className="h-9 w-[102px] animate-pulse rounded-full bg-[#e8e8e8]" />
         </div>
 
-        <div className="divide-y divide-neutral-200 rounded-xl border border-neutral-200 bg-neutral-50/80">
+        <div className="divide-y divide-[#eeeeee] overflow-hidden rounded-xl border border-[#eeeeee] bg-white">
           {[
             "The Problem",
             "Process & Approach",
@@ -276,14 +338,12 @@ const DraftOutput = ({
             "Feedback",
             "Learnings",
           ].map((sectionTitle) => (
-            <section key={sectionTitle} className="p-4">
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">
-                {sectionTitle}
-              </p>
+            <section key={sectionTitle} className="px-3 py-4 sm:px-4">
+              <p className="text-xs font-medium text-[#808080]">{sectionTitle}</p>
               <div className="mt-3 space-y-2">
-                <div className="h-3 w-full animate-pulse rounded bg-neutral-200" />
-                <div className="h-3 w-11/12 animate-pulse rounded bg-neutral-200" />
-                <div className="h-3 w-10/12 animate-pulse rounded bg-neutral-200" />
+                <div className="h-3 w-full animate-pulse rounded bg-[#e8e8e8]" />
+                <div className="h-3 w-11/12 animate-pulse rounded bg-[#e8e8e8]" />
+                <div className="h-3 w-10/12 animate-pulse rounded bg-[#e8e8e8]" />
               </div>
             </section>
           ))}
@@ -294,85 +354,78 @@ const DraftOutput = ({
 
   if (!showFinalDraft && draft) {
     return (
-      <section className="space-y-5 rounded-2xl border border-neutral-200 bg-white p-5 shadow-[0_1px_2px_rgba(0,0,0,0.05)] sm:p-6">
-        <div className="flex items-center justify-between gap-3">
-          <h2 className="text-sm font-semibold uppercase tracking-[0.18em] text-neutral-500">
-            Draft
-          </h2>
+      <section className="space-y-4 rounded-2xl border border-[#eeeeee] bg-white p-4">
+        <div className="flex items-start justify-between gap-3">
+          <div className="space-y-1">
+            <h2 className="text-base font-medium text-[#3f3f3f]">Draft</h2>
+            <p className="text-sm text-[#c3c3c3]">Edit before publishing.</p>
+          </div>
         </div>
 
-        <div className="divide-y divide-neutral-200 rounded-xl border border-neutral-200 bg-neutral-50/80">
-          <section className="p-4">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">
-              The Problem
-            </p>
+        <div className="divide-y divide-[#eeeeee] overflow-hidden rounded-xl border border-[#eeeeee] bg-white">
+          <section className="px-3 py-4 sm:px-4">
+            <p className="text-xs font-medium text-[#808080]">The Problem</p>
             {problemPreview ? (
               <TypewriterParagraph key={problemPreview} text={problemPreview} />
             ) : (
               <div className="mt-3 animate-pulse space-y-2">
-                <div className="h-3 w-full rounded bg-neutral-200" />
-                <div className="h-3 w-11/12 rounded bg-neutral-200" />
-                <div className="h-3 w-10/12 rounded bg-neutral-200" />
+                <div className="h-3 w-full rounded bg-[#e8e8e8]" />
+                <div className="h-3 w-11/12 rounded bg-[#e8e8e8]" />
+                <div className="h-3 w-10/12 rounded bg-[#e8e8e8]" />
               </div>
             )}
           </section>
 
-          <section className="p-4">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">
+          <section className="px-3 py-4 sm:px-4">
+            <p className="text-xs font-medium text-[#808080]">
               Process &amp; Approach
             </p>
             {processPreview ? (
               <TypewriterParagraph key={processPreview} text={processPreview} />
             ) : (
               <div className="mt-3 animate-pulse space-y-2">
-                <div className="h-3 w-full rounded bg-neutral-200" />
-                <div className="h-3 w-11/12 rounded bg-neutral-200" />
-                <div className="h-3 w-10/12 rounded bg-neutral-200" />
+                <div className="h-3 w-full rounded bg-[#e8e8e8]" />
+                <div className="h-3 w-11/12 rounded bg-[#e8e8e8]" />
+                <div className="h-3 w-10/12 rounded bg-[#e8e8e8]" />
               </div>
             )}
           </section>
 
-          <section className="p-4">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">
-              Solution
-            </p>
+          <section className="px-3 py-4 sm:px-4">
+            <p className="text-xs font-medium text-[#808080]">Solution</p>
             {solutionPreview ? (
               <TypewriterParagraph key={solutionPreview} text={solutionPreview} />
             ) : (
               <div className="mt-3 animate-pulse space-y-2">
-                <div className="h-3 w-full rounded bg-neutral-200" />
-                <div className="h-3 w-11/12 rounded bg-neutral-200" />
-                <div className="h-3 w-10/12 rounded bg-neutral-200" />
+                <div className="h-3 w-full rounded bg-[#e8e8e8]" />
+                <div className="h-3 w-11/12 rounded bg-[#e8e8e8]" />
+                <div className="h-3 w-10/12 rounded bg-[#e8e8e8]" />
               </div>
             )}
           </section>
 
-          <section className="p-4">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">
-              Feedback
-            </p>
+          <section className="px-3 py-4 sm:px-4">
+            <p className="text-xs font-medium text-[#808080]">Feedback</p>
             {feedbackPreview ? (
               <TypewriterParagraph key={feedbackPreview} text={feedbackPreview} />
             ) : (
               <div className="mt-3 animate-pulse space-y-2">
-                <div className="h-3 w-full rounded bg-neutral-200" />
-                <div className="h-3 w-11/12 rounded bg-neutral-200" />
-                <div className="h-3 w-10/12 rounded bg-neutral-200" />
+                <div className="h-3 w-full rounded bg-[#e8e8e8]" />
+                <div className="h-3 w-11/12 rounded bg-[#e8e8e8]" />
+                <div className="h-3 w-10/12 rounded bg-[#e8e8e8]" />
               </div>
             )}
           </section>
 
-          <section className="p-4">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">
-              Learnings
-            </p>
+          <section className="px-3 py-4 sm:px-4">
+            <p className="text-xs font-medium text-[#808080]">Learnings</p>
             {learningsPreview ? (
               <TypewriterParagraph key={learningsPreview} text={learningsPreview} />
             ) : (
               <div className="mt-3 animate-pulse space-y-2">
-                <div className="h-3 w-full rounded bg-neutral-200" />
-                <div className="h-3 w-11/12 rounded bg-neutral-200" />
-                <div className="h-3 w-10/12 rounded bg-neutral-200" />
+                <div className="h-3 w-full rounded bg-[#e8e8e8]" />
+                <div className="h-3 w-11/12 rounded bg-[#e8e8e8]" />
+                <div className="h-3 w-10/12 rounded bg-[#e8e8e8]" />
               </div>
             )}
           </section>
@@ -383,17 +436,15 @@ const DraftOutput = ({
 
   if (error) {
     return (
-      <section className="space-y-4 rounded-2xl border border-neutral-200 bg-white p-5 shadow-[0_1px_2px_rgba(0,0,0,0.05)] sm:p-6">
-        <h2 className="text-sm font-semibold uppercase tracking-[0.18em] text-neutral-500">
-          Draft
-        </h2>
+      <section className="space-y-4 rounded-2xl border border-[#eeeeee] bg-white p-4">
+        <h2 className="text-base font-medium text-[#3f3f3f]">Draft</h2>
         <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-900">
           {errorMessage}
         </div>
         <button
           type="button"
           onClick={handleReset}
-          className="inline-flex h-[44px] w-full items-center justify-center rounded-full bg-neutral-900 px-5 text-sm font-semibold text-white shadow-sm transition hover:bg-neutral-800"
+          className="inline-flex h-9 w-full items-center justify-center rounded-full bg-[#082cd0] px-5 text-sm font-medium text-white shadow-sm transition hover:bg-[#061fa8]"
         >
           Try again
         </button>
@@ -408,76 +459,36 @@ const DraftOutput = ({
     return (
       <section
         id="draft-output"
-        className="fade-in space-y-5 rounded-2xl border border-neutral-200 bg-white p-5 shadow-[0_1px_2px_rgba(0,0,0,0.05)] sm:p-6"
+        className="fade-in space-y-4 rounded-2xl border border-[#eeeeee] bg-white p-4"
       >
-        <header className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-3">
+        <header className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div className="space-y-1">
-            <h2 className="text-xs font-semibold uppercase tracking-[0.16em] text-neutral-500 sm:text-sm">
-              Draft
-            </h2>
-            <p className="text-xs text-neutral-500">Edit before publishing.</p>
+            <h2 className="text-base font-medium text-[#3f3f3f]">Draft</h2>
+            <p className="text-sm text-[#c3c3c3]">Edit before publishing.</p>
           </div>
 
           <button
             type="button"
             onClick={handleCopyAll}
-            className="inline-flex h-[44px] w-full items-center justify-center rounded-full bg-neutral-900 px-4 text-base font-semibold text-white shadow-sm transition hover:bg-neutral-800 sm:w-auto sm:px-5"
+            className="inline-flex h-9 w-full items-center justify-center gap-1 rounded-full bg-[#082cd0] px-3 text-sm font-medium text-white shadow-sm transition hover:bg-[#061fa8] sm:w-auto sm:min-w-[102px]"
           >
             {copied ? "Copied!" : "Copy all"}
+            {!copied && <CopyIcon />}
           </button>
         </header>
 
-        <div className="divide-y divide-neutral-200 rounded-xl border border-neutral-200 bg-neutral-50/80">
-          <section className="p-4">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">
-              The Problem
-            </p>
-            <p className="mt-3 whitespace-pre-wrap text-sm leading-relaxed text-neutral-800">
-              {draft.problem}
-            </p>
-          </section>
-
-          <section className="p-4">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">
-              Process &amp; Approach
-            </p>
-            <p className="mt-3 whitespace-pre-wrap text-sm leading-relaxed text-neutral-800">
-              {draft.process}
-            </p>
-          </section>
-
-          <section className="p-4">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">
-              Solution
-            </p>
-            <p className="mt-3 whitespace-pre-wrap text-sm leading-relaxed text-neutral-800">
-              {draft.solution}
-            </p>
-          </section>
-
-          <section className="p-4">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">
-              Feedback
-            </p>
-            <p className="mt-3 whitespace-pre-wrap text-sm leading-relaxed text-neutral-800">
-              {draft.feedback}
-            </p>
-          </section>
-
-          <section className="p-4">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">
-              Learnings
-            </p>
-            <p className="mt-3 whitespace-pre-wrap text-sm leading-relaxed text-neutral-800">
-              {draft.learnings}
-            </p>
-          </section>
+        <div className="divide-y divide-[#eeeeee] overflow-hidden rounded-xl border border-[#eeeeee] bg-white">
+          <CollapsibleSection title="The Problem" content={draft.problem} />
+          <CollapsibleSection title="Process & Approach" content={draft.process} />
+          <CollapsibleSection title="Solution" content={draft.solution} />
+          <CollapsibleSection title="Feedback" content={draft.feedback} />
+          <CollapsibleSection title="Learnings" content={draft.learnings} />
         </div>
 
         <button
           type="button"
           onClick={handleDownload}
-          className="inline-flex h-[44px] w-full items-center justify-center rounded-full border border-neutral-200 bg-white px-6 text-base font-semibold text-neutral-900 shadow-sm transition hover:bg-neutral-50"
+          className="inline-flex h-11 w-full items-center justify-center rounded-full border border-[#eeeeee] bg-white px-6 text-base font-medium text-[#3f3f3f] shadow-sm transition hover:bg-[#fafafa]"
         >
           Download as .txt
         </button>

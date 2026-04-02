@@ -22,25 +22,31 @@ export default function Home() {
   }, [draft]);
 
   return (
-    <main className="relative min-h-screen overflow-y-auto bg-white px-4 py-12 text-neutral-950 sm:py-16 lg:py-20">
+    <main className="relative min-h-screen overflow-y-auto bg-[#fafafa] px-4 py-12 text-[#3f3f3f] sm:py-16 lg:py-20">
+      {/* Figma "Rectangle 1": subtle grid pattern over canvas */}
       <div
-        className="pointer-events-none absolute inset-0 overflow-hidden opacity-[0.04]"
+        className="pointer-events-none absolute inset-0 opacity-[0.45]"
         aria-hidden
       >
-        <div className="absolute left-1/2 top-1/2 h-[min(120vw,720px)] w-[min(120vw,720px)] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle_at_center,_#000_0%,_transparent_70%)]" />
+        <div
+          className="h-full w-full bg-[length:20px_20px] [background-image:radial-gradient(circle_at_center,_#d4d4d8_0.75px,_transparent_0.76px)]"
+        />
       </div>
 
-      <div className="relative mx-auto flex w-full max-w-3xl flex-col gap-10 sm:gap-12 lg:gap-14">
-        <section className="mx-auto w-full max-w-2xl text-center">
-          <h1 className="text-4xl font-bold tracking-tight text-neutral-950 sm:text-5xl lg:text-6xl">
-            Notes in. Case study out.
-          </h1>
-          <p className="mx-auto mt-4 max-w-lg text-base leading-relaxed text-neutral-500 sm:text-lg">
-            Stop staring at a blank page. Start with what you have.
-          </p>
+      <div className="relative mx-auto flex w-full max-w-[640px] flex-col gap-10 sm:gap-12 lg:gap-14">
+        <section className="mx-auto flex w-full flex-col items-center gap-4 text-center">
+          <div className="flex w-full flex-col gap-4">
+            <h1 className="text-[2rem] font-bold leading-tight tracking-tight sm:text-5xl lg:text-[52px] lg:leading-[1.1]">
+              <span className="text-[#3f3f3f]">Notes in.</span>{" "}
+              <span className="text-[#082cd0]">Case study out.</span>
+            </h1>
+            <p className="mx-auto max-w-[32rem] text-base leading-relaxed text-[#9ca0ac] sm:text-lg">
+              Stop staring at a blank page. Start with what you have.
+            </p>
+          </div>
         </section>
 
-        <section className="mx-auto flex w-full max-w-2xl flex-col gap-6">
+        <section className="mx-auto flex w-full max-w-[640px] flex-col gap-6">
           <InputForm
             isLoading={isLoading}
             onGenerationStart={() => {
