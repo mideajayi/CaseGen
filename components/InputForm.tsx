@@ -260,29 +260,53 @@ const InputForm = ({
 
   return (
     <section className="flex w-full flex-col gap-4">
-      {/* Figma "Input Card": white, 16px radius, hairline border */}
-      <div className="rounded-2xl border border-[#f2f5fc] bg-white p-4 sm:p-4">
-        <label className="block">
-          <span className="sr-only">Project notes</span>
+      <div className="rounded-2xl border border-[#f2f5fc] bg-white p-4">
+        <div className="flex flex-col gap-2">
           <textarea
             value={notes}
             onChange={handleNotesChange}
-            rows={6}
-            className="w-full min-h-[80px] resize-none border-0 bg-transparent p-0 text-base leading-relaxed text-[#3f3f3f] placeholder:text-[#c1c2c6] focus:outline-none focus:ring-0 sm:min-h-[80px]"
+            rows={4}
+            className="w-full resize-none border-0 bg-transparent p-0 text-base leading-relaxed text-[#3f3f3f] placeholder:text-[#c1c2c6] focus:outline-none focus:ring-0"
             placeholder="Describe your project: brief, decisions, tests, feedback, metrics…"
           />
-        </label>
 
-        <div
-          className="my-4 h-px w-full bg-[#f2f5fc]"
-          aria-hidden
-        />
+          {images.length > 0 && (
+            <div className="flex gap-2">
+              {images.map((image, index) => (
+                <figure
+                  key={image.file.name + image.file.lastModified}
+                  className="group/thumb relative h-10 w-10 shrink-0 overflow-hidden rounded-lg border border-[#e9ebf8] bg-[#f2f5fc]"
+                  title={image.file.name}
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={image.previewUrl}
+                    alt={image.file.name}
+                    className="h-full w-full object-cover"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveImage(index)}
+                    className="absolute right-0 top-0 hidden h-4 w-4 items-center justify-center rounded-full bg-[#393f46] text-white group-hover/thumb:flex"
+                    title="Remove image"
+                  >
+                    <svg className="h-2 w-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round">
+                      <path d="M18 6L6 18M6 6l12 12" />
+                    </svg>
+                  </button>
+                </figure>
+              ))}
+            </div>
+          )}
+        </div>
 
-        <div className="flex min-h-9 flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2 sm:gap-2">
+        <div className="mt-4 h-px w-full bg-[#f2f5fc]" />
+
+        <div className="mt-4 flex items-center justify-between">
+          <div className="flex items-center gap-2">
             <div className="group relative flex shrink-0 items-center">
               <label
-                className="relative inline-flex h-9 min-h-[36px] cursor-pointer items-center justify-center gap-1 rounded-full bg-[#f2f5fc] px-3 py-2 text-sm font-medium text-[#636678] transition hover:bg-[#e8edf8] focus-within:ring-2 focus-within:ring-[#082cd0]/25 focus-within:ring-offset-2 focus-within:ring-offset-white"
+                className="peer flex h-9 cursor-pointer items-center gap-1 rounded-full bg-[#f2f5fc] px-3 text-sm font-medium text-[#636678] transition hover:bg-[#e8edf8] focus-within:ring-2 focus-within:ring-[#082cd0]/25 focus-within:ring-offset-2 focus-within:ring-offset-white"
                 title="Optional · JPG, PNG, WebP"
               >
                 <svg
@@ -310,58 +334,21 @@ const InputForm = ({
                   }}
                 />
               </label>
-              <span
-                className="pointer-events-none absolute bottom-full left-1/2 z-20 mb-2 w-max max-w-[min(100vw-2rem,16rem)] -translate-x-1/2 rounded-lg border border-neutral-200 bg-white px-3 py-2 text-center text-xs leading-snug text-neutral-700 opacity-0 shadow-md transition-opacity duration-150 group-hover:opacity-100 group-focus-within:opacity-100 sm:left-0 sm:translate-x-0"
-                role="tooltip"
-              >
+              <span className="pointer-events-none absolute bottom-full left-0 z-20 mb-2 w-max max-w-[min(100vw-2rem,16rem)] rounded-lg border border-neutral-200 bg-white px-3 py-2 text-center text-xs leading-snug text-neutral-700 opacity-0 shadow-md peer-hover:opacity-100 peer-focus:opacity-100">
                 Optional · JPG, PNG, WebP
               </span>
             </div>
 
-            <span className="shrink-0 text-sm tabular-nums text-[#a0a5b5]">
+            <span className="text-sm tabular-nums text-[#a0a5b5]">
               {images.length}/5
             </span>
-
-            {images.length > 0 && (
-              <div className="flex min-w-0 flex-1 items-center gap-2 overflow-x-auto pb-0.5 [scrollbar-width:thin]">
-                {images.map((image, index) => (
-                  <figure
-                    key={image.file.name + image.file.lastModified}
-                    className="group/thumb relative h-12 w-12 shrink-0 overflow-hidden rounded-lg border border-[#eeeeee] bg-neutral-100 sm:h-14 sm:w-14"
-                    title={image.file.name}
-                  >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={image.previewUrl}
-                      alt={image.file.name}
-                      className="h-full w-full object-cover"
-                    />
-                    <figcaption className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/75 to-transparent px-1 pb-1 pt-3">
-                      <p className="truncate text-[8px] leading-tight text-white sm:text-[9px]">
-                        {image.file.name}
-                      </p>
-                    </figcaption>
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveImage(index)}
-                      className="absolute right-0.5 top-0.5 flex h-6 w-6 items-center justify-center rounded-full bg-white/95 text-[#3f3f3f] shadow-sm ring-1 ring-black/10 transition hover:bg-white"
-                      title="Remove image"
-                    >
-                      <span className="text-sm font-semibold leading-none">
-                        ×
-                      </span>
-                    </button>
-                  </figure>
-                ))}
-              </div>
-            )}
           </div>
 
           <button
             type="button"
             onClick={handleGenerateClick}
             disabled={isLoading}
-            className="inline-flex h-9 min-h-[36px] w-9 shrink-0 items-center justify-center self-end rounded-full bg-[#082cd0] text-white shadow-sm transition hover:bg-[#061fa8] disabled:cursor-not-allowed disabled:opacity-50 sm:self-auto"
+            className="flex h-9 w-9 items-center justify-center rounded-full bg-[#082cd0] text-white shadow-sm transition hover:bg-[#061fa8] disabled:cursor-not-allowed disabled:opacity-50"
             aria-label={
               isLoading ? "Generating draft" : "Generate case study draft"
             }

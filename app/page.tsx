@@ -23,9 +23,8 @@ export default function Home() {
 
   return (
     <main className="relative min-h-screen overflow-y-auto bg-[#fafafa] px-4 py-12 text-[#3f3f3f] sm:py-16 lg:py-20">
-      {/* Figma "Rectangle 1": subtle grid pattern over canvas */}
       <div
-        className="pointer-events-none absolute inset-0 opacity-[0.45]"
+        className="pointer-events-none absolute inset-0 opacity-100"
         aria-hidden
       >
         <div
@@ -34,8 +33,8 @@ export default function Home() {
       </div>
 
       <div className="relative mx-auto flex w-full max-w-[640px] flex-col gap-10 sm:gap-12 lg:gap-14">
-        <section className="mx-auto flex w-full flex-col items-center gap-4 text-center">
-          <div className="flex w-full flex-col gap-4">
+        <section className="mx-auto flex w-full flex-col items-center gap-2 text-center sm:gap-2">
+          <div className="flex w-full flex-col gap-2 sm:gap-2">
             <h1 className="text-[2rem] font-bold leading-tight tracking-tight sm:text-5xl lg:text-[52px] lg:leading-[1.1]">
               <span className="text-[#3f3f3f]">Notes in.</span>{" "}
               <span className="text-[#082cd0]">Case study out.</span>

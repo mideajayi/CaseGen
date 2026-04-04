@@ -174,10 +174,10 @@ const extractJsonStringField = (text: string, key: string): string | null => {
   }
 };
 
-// Chevron icon for expand/collapse
+// Chevron icon for expand/collapse (points right when collapsed, down when expanded)
 const ChevronIcon = ({ expanded }: { expanded: boolean }): ReactElement => (
   <svg
-    className={`h-4 w-4 shrink-0 text-[#808080] transition-transform duration-200 ${expanded ? "rotate-180" : ""}`}
+    className={`h-4 w-4 shrink-0 text-[#808080] transition-transform duration-200 ${expanded ? "rotate-90" : ""}`}
     viewBox="0 0 24 24"
     fill="none"
     stroke="currentColor"
@@ -186,21 +186,19 @@ const ChevronIcon = ({ expanded }: { expanded: boolean }): ReactElement => (
     strokeLinejoin="round"
     aria-hidden
   >
-    <path d="m6 9 6 6 6-6" />
+    <path d="m9 18 6-6-6-6" />
   </svg>
 );
 
-// Collapsible section component
+// Collapsible section component (collapsed by default)
 const CollapsibleSection = ({
   title,
   content,
-  defaultExpanded = true,
 }: {
   title: string;
   content: string;
-  defaultExpanded?: boolean;
 }): ReactElement => {
-  const [expanded, setExpanded] = useState<boolean>(defaultExpanded);
+  const [expanded, setExpanded] = useState<boolean>(false);
 
   return (
     <section className="px-3 py-4 sm:px-4">
@@ -220,6 +218,40 @@ const CollapsibleSection = ({
     </section>
   );
 };
+
+// Download icon for download button
+const DownloadIcon = (): ReactElement => (
+  <svg
+    className="h-5 w-5"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.5"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden
+  >
+    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+    <polyline points="7 10 12 15 17 10" />
+    <line x1="12" y1="15" x2="12" y2="3" />
+  </svg>
+);
+
+// Draft section component with padding
+const DraftSection = ({
+  title,
+  content,
+}: {
+  title: string;
+  content: string;
+}): ReactElement => (
+  <div className="border-b last:border-b-0 border-[#eeeeee] bg-white px-3 py-4">
+    <p className="text-xs font-medium text-[#808080]">{title}</p>
+    <p className="mt-3 whitespace-pre-wrap text-sm leading-relaxed text-[#3f3f3f]">
+      {content}
+    </p>
+  </div>
+);
 
 // Renders the generated draft with copy and download actions, plus loading/error states.
 const DraftOutput = ({
@@ -470,27 +502,28 @@ const DraftOutput = ({
           <button
             type="button"
             onClick={handleCopyAll}
-            className="inline-flex h-9 w-full items-center justify-center gap-1 rounded-full bg-[#082cd0] px-3 text-sm font-medium text-white shadow-sm transition hover:bg-[#061fa8] sm:w-auto sm:min-w-[102px]"
+            className="inline-flex h-9 items-center justify-center gap-1 rounded-full border border-[#082cd0] bg-white px-4 text-sm font-medium text-[#082cd0] transition hover:bg-[#f5f7ff]"
           >
             {copied ? "Copied!" : "Copy all"}
             {!copied && <CopyIcon />}
           </button>
         </header>
 
-        <div className="divide-y divide-[#eeeeee] overflow-hidden rounded-xl border border-[#eeeeee] bg-white">
-          <CollapsibleSection title="The Problem" content={draft.problem} />
-          <CollapsibleSection title="Process & Approach" content={draft.process} />
-          <CollapsibleSection title="Solution" content={draft.solution} />
-          <CollapsibleSection title="Feedback" content={draft.feedback} />
-          <CollapsibleSection title="Learnings" content={draft.learnings} />
+        <div className="overflow-hidden rounded-xl border border-[#eeeeee]">
+          <DraftSection title="The Problem" content={draft.problem} />
+          <DraftSection title="Process & Approach" content={draft.process} />
+          <DraftSection title="Solution" content={draft.solution} />
+          <DraftSection title="Feedback" content={draft.feedback} />
+          <DraftSection title="Learnings" content={draft.learnings} />
         </div>
 
         <button
           type="button"
           onClick={handleDownload}
-          className="inline-flex h-11 w-full items-center justify-center rounded-full border border-[#eeeeee] bg-white px-6 text-base font-medium text-[#3f3f3f] shadow-sm transition hover:bg-[#fafafa]"
+          className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-full border border-[#082cd0] bg-white px-4 text-sm font-medium text-[#082cd0] transition hover:bg-[#f5f7ff]"
         >
           Download as .txt
+          <DownloadIcon />
         </button>
       </section>
     );
