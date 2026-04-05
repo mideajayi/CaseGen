@@ -28,15 +28,44 @@ export const SYSTEM_PROMPT: string =
   "6. Platform, timeline, team, and persona ages must be taken directly from the notes. Never infer, round, or assume these — if they are stated, use them exactly as written.\n\n" +
   "Return only valid JSON.";
 
+export const buildExtractionPrompt = (
+  notes: string,
+  imageCount: number,
+): string => {
+  const imagesLine =
+    imageCount > 0
+      ? `The designer has also provided ${imageCount} screenshot(s). Extract details visible in the images too.`
+      : "No screenshots provided.";
+
+  return [
+    "Here are the designer's raw project notes:",
+    "",
+    notes.trim(),
+    "",
+    imagesLine,
+    "",
+    "Extract every concrete detail. Copy platform, timeline, ages, and quotes exactly as written — do not guess or infer.",
+  ].join("\n");
+};
+
 export const buildUserPrompt = (
   notes: string,
   imageCount: number,
+  correctedMeta?: string,
 ): string => {
   const trimmedNotes = notes.trim();
   const imagesLine =
     imageCount > 0
-      ? `The designer has also provided ${imageCount} screenshot(s) as visual context. Extract any additional project details visible in the screenshots—team, platform, UI patterns, constraints—and incorporate them into the case study.`
+      ? `The designer has also provided ${imageCount} screenshot(s) as visual context.`
       : "The designer did not provide screenshots for this project.";
+
+  const metaBlock = correctedMeta
+    ? [
+        "STOP. The designer has manually verified and corrected these details. These values are ground truth. Do NOT read platform, timeline, or persona ages from the notes or images — use ONLY what is listed here:",
+        correctedMeta,
+        "",
+      ].join("\n")
+    : "";
 
   return [
     "Here are the designer's raw project notes:",
@@ -45,19 +74,7 @@ export const buildUserPrompt = (
     "",
     imagesLine,
     "",
-    "BEFORE writing the case study, you must complete this extraction block explicitly in your reasoning:",
-    "- Timeline: [extract from notes, do not guess]",
-    "- Platform: [extract from notes, do not guess — if notes say 'mobile', write 'mobile']",
-    "- Team: [extract from notes, do not guess]",
-    "- Tools: [list every tool named in the notes]",
-    "- Persona 1: [name, exact age as written in notes, occupation, tools they use, direct quote if present]",
-    "- Persona 2: [name, exact age as written in notes, occupation, tools they use, direct quote if present]",
-    "- Constraints: [extract from notes]",
-    "- Outcomes / metrics: [extract from notes, or write 'not specified']",
-    "",
-    "Only after completing this extraction, write the JSON case study.",
-    "The first key must be meta — populate it with everything you extracted above.",
-    "Every field in the extraction block must appear at least once in the case study output.",
-    "The solution section must use the exact platform from your extraction — never substitute or infer a different one.",
+    metaBlock,
+    "Write the JSON case study. Every section must reference specific details from the notes or the confirmed extraction above. Do not invent details.",
   ].join("\n");
 };

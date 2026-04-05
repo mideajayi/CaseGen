@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 type GenerateRequestBody = {
   notes: string;
   images?: string[];
+  correctedMeta?: string;
 };
 
 type CaseStudyDraft = {
@@ -14,13 +15,11 @@ type CaseStudyDraft = {
   learnings: string;
 };
 
-// Converts a base64 string or a data URL into a data URL suitable for vision input.
 const toImageDataUrl = (image: string): string => {
   if (image.startsWith("data:")) return image;
   return `data:image/png;base64,${image}`;
 };
 
-// Checks whether a parsed value matches the expected draft shape.
 const isCaseStudyDraft = (value: unknown): value is CaseStudyDraft => {
   if (!value || typeof value !== "object") return false;
   const record = value as Record<string, unknown>;
@@ -34,7 +33,6 @@ const isCaseStudyDraft = (value: unknown): value is CaseStudyDraft => {
   );
 };
 
-// Extracts the next streamed content delta from a streamed chat completion chunk.
 const extractChatCompletionStreamDelta = (value: unknown): string | null => {
   if (!value || typeof value !== "object") return null;
   const record = value as Record<string, unknown>;
@@ -53,7 +51,6 @@ const extractChatCompletionStreamDelta = (value: unknown): string | null => {
   return typeof content === "string" ? content : null;
 };
 
-// Handles POST requests to /api/generate by validating the input and returning a structured case study draft.
 export async function POST(request: NextRequest): Promise<NextResponse> {
   const body = (await request.json()) as GenerateRequestBody;
 
@@ -65,13 +62,14 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
   console.log("CaseGen /api/generate called", {
     notesLength: body.notes.length,
+    hasCorrectedMeta: !!body.correctedMeta,
   });
 
   const { SYSTEM_PROMPT, buildUserPrompt } = await import(
     "@/lib/prompt"
   ) as {
     SYSTEM_PROMPT: string;
-    buildUserPrompt: (notes: string, imageCount: number) => string;
+    buildUserPrompt: (notes: string, imageCount: number, correctedMeta?: string) => string;
   };
 
   const apiKey = process.env.OPENAI_API_KEY;
@@ -86,7 +84,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   const fallbackModels = ["gpt-4o-mini"];
   const modelCandidates = [preferredModel, ...fallbackModels];
 
-  const userPrompt = buildUserPrompt(body.notes, images.length);
+  const userPrompt = buildUserPrompt(body.notes, images.length, body.correctedMeta);
 
   const imageParts = images.map((img) => {
     const url = toImageDataUrl(img);
@@ -178,51 +176,59 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         return;
       }
 
+      // Sends a heartbeat every 15s to keep the connection alive when the
+      // browser tab is backgrounded or the user switches windows.
+      const heartbeat = setInterval(() => {
+        try {
+          controller.enqueue(encoder.encode(`: heartbeat\n\n`));
+        } catch {
+          clearInterval(heartbeat);
+        }
+      }, 15000);
+
       let buffer = "";
       let fullContent = "";
 
-      // Reads OpenAI's streaming response and forwards it to the browser as SSE.
-      while (true) {
-        const { value, done } = await reader.read();
-        if (done) break;
-        if (!value) continue;
-
-        buffer += decoder.decode(value, { stream: true });
-
-        // OpenAI streams events separated by blank lines.
+      try {
         while (true) {
-          const eventEndIndex = buffer.indexOf("\n\n");
-          if (eventEndIndex === -1) break;
+          const { value, done } = await reader.read();
+          if (done) break;
+          if (!value) continue;
 
-          const rawEvent = buffer.slice(0, eventEndIndex);
-          buffer = buffer.slice(eventEndIndex + 2);
+          buffer += decoder.decode(value, { stream: true });
 
-          const lines = rawEvent
-            .split("\n")
-            .map((line) => line.trim())
-            .filter(Boolean);
-          const dataLine = lines.find((line) => line.startsWith("data:"));
-          if (!dataLine) continue;
+          while (true) {
+            const eventEndIndex = buffer.indexOf("\n\n");
+            if (eventEndIndex === -1) break;
 
-          const data = dataLine.replace(/^data:\s*/, "");
-          if (data === "[DONE]") {
-            break;
-          }
+            const rawEvent = buffer.slice(0, eventEndIndex);
+            buffer = buffer.slice(eventEndIndex + 2);
 
-          const parsed = JSON.parse(data) as unknown;
-          const delta = extractChatCompletionStreamDelta(parsed);
-          if (delta) {
-            fullContent += delta;
-            controller.enqueue(
-              encoder.encode(
-                `event: delta\ndata: ${JSON.stringify(delta)}\n\n`,
-              ),
-            );
+            const lines = rawEvent
+              .split("\n")
+              .map((line) => line.trim())
+              .filter(Boolean);
+            const dataLine = lines.find((line) => line.startsWith("data:"));
+            if (!dataLine) continue;
+
+            const data = dataLine.replace(/^data:\s*/, "");
+            if (data === "[DONE]") {
+              break;
+            }
+
+            const parsed = JSON.parse(data) as unknown;
+            const delta = extractChatCompletionStreamDelta(parsed);
+            if (delta) {
+              fullContent += delta;
+              controller.enqueue(
+                encoder.encode(
+                  `event: delta\ndata: ${JSON.stringify(delta)}\n\n`,
+                ),
+              );
+            }
           }
         }
-      }
 
-      try {
         const parsed = JSON.parse(fullContent) as unknown;
         if (!isCaseStudyDraft(parsed)) {
           throw new Error("OpenAI returned JSON with an unexpected shape.");
@@ -243,9 +249,10 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         controller.enqueue(
           encoder.encode(`event: error\ndata: ${JSON.stringify(message)}\n\n`),
         );
+      } finally {
+        clearInterval(heartbeat);
+        controller.close();
       }
-
-      controller.close();
     },
   });
 

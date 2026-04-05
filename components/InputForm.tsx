@@ -19,6 +19,7 @@ type InputFormProps = {
   onGenerationStart: () => void;
   onGenerationError: (message: string) => void;
   onStreamTextUpdate: (text: string) => void;
+  onExtractAndReview: (notes: string, images: string[]) => void;
   isLoading: boolean;
 };
 
@@ -90,6 +91,7 @@ const InputForm = ({
   onGenerationStart,
   onGenerationError,
   onStreamTextUpdate,
+  onExtractAndReview,
   isLoading,
 }: InputFormProps): ReactElement => {
   const [notes, setNotes] = useState<string>("");
@@ -156,104 +158,14 @@ const InputForm = ({
     void (async () => {
       try {
         setValidationError(null);
-        onGenerationStart();
-        onStreamTextUpdate("");
-
+    
         const imageDataUrls: string[] = await Promise.all(
           images.map(async (selected) => fileToCompressedDataUrl(selected.file)),
         );
-
-        const response = await fetch("/api/generate", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            notes,
-            images: imageDataUrls,
-          }),
-        });
-
-        if (!response.ok) {
-          const data = (await response.json()) as GenerateResponseBody;
-          const message =
-            "error" in data ? data.error : "Something went wrong.";
-          onGenerationError(message);
-          return;
-        }
-
-        if (!response.body) {
-          onGenerationError("No response body received.");
-          return;
-        }
-
-        const reader = response.body.getReader();
-        const decoder = new TextDecoder();
-        let buffer = "";
-        let fullJsonText = "";
-
-        // Reads the server-sent events stream and updates the UI as JSON is generated.
-        while (true) {
-          const { value, done } = await reader.read();
-          if (done) break;
-          if (!value) continue;
-
-          buffer += decoder.decode(value, { stream: true });
-
-          while (true) {
-            const eventEndIndex = buffer.indexOf("\n\n");
-            if (eventEndIndex === -1) break;
-
-            const rawEvent = buffer.slice(0, eventEndIndex);
-            buffer = buffer.slice(eventEndIndex + 2);
-
-            const lines = rawEvent
-              .split("\n")
-              .map((line) => line.trim())
-              .filter(Boolean);
-
-            const eventLine = lines.find((line) => line.startsWith("event:"));
-            const dataLine = lines.find((line) => line.startsWith("data:"));
-            if (!dataLine) continue;
-
-            const eventType = eventLine
-              ? eventLine.replace(/^event:\s*/, "")
-              : "message";
-            const data = dataLine.replace(/^data:\s*/, "");
-
-            if (data === "[DONE]") continue;
-
-            if (eventType === "delta") {
-              const deltaText = JSON.parse(data) as string;
-              fullJsonText += deltaText;
-              onStreamTextUpdate(fullJsonText);
-            } else if (eventType === "done") {
-              const parsed = JSON.parse(data) as unknown;
-              if (
-                !parsed ||
-                typeof parsed !== "object" ||
-                !("problem" in parsed) ||
-                !("process" in parsed) ||
-                !("solution" in parsed) ||
-                !("decisions" in parsed) ||
-                !("learnings" in parsed)
-              ) {
-                onGenerationError(
-                  "Server returned JSON with an unexpected shape.",
-                );
-                return;
-              }
-
-              onDraftGenerated(parsed as CaseStudyDraft);
-              onStreamTextUpdate("");
-              return;
-            } else if (eventType === "error") {
-              const message = JSON.parse(data) as string;
-              onGenerationError(message);
-              return;
-            }
-          }
-        }
+    
+        onExtractAndReview(notes, imageDataUrls);
       } catch {
-        onGenerationError("Network error. Please try again.");
+        onGenerationError("Failed to process images. Please try again.");
       }
     })();
   };
