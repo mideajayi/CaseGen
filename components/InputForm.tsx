@@ -233,7 +233,7 @@ const InputForm = ({
                 !("problem" in parsed) ||
                 !("process" in parsed) ||
                 !("solution" in parsed) ||
-                !("feedback" in parsed) ||
+                !("decisions" in parsed) ||
                 !("learnings" in parsed)
               ) {
                 onGenerationError(

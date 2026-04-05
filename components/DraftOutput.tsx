@@ -7,7 +7,7 @@ export type CaseStudyDraft = {
   problem: string;
   process: string;
   solution: string;
-  feedback: string;
+  decisions: string;
   learnings: string;
 };
 
@@ -17,7 +17,7 @@ export interface DraftOutputProps {
         problem: string;
         process: string;
         solution: string;
-        feedback: string;
+        decisions: string;
         learnings: string;
       }
     | null;
@@ -31,9 +31,9 @@ export interface DraftOutputProps {
 const buildPlainTextDraft = (draft: CaseStudyDraft): string => {
   const sections: Array<{ label: string; content: string }> = [
     { label: "THE PROBLEM", content: draft.problem },
-    { label: "PROCESS & APPROACH", content: draft.process },
+    { label: "PROCESS & INSIGHTS", content: draft.process },
     { label: "SOLUTION", content: draft.solution },
-    { label: "FEEDBACK", content: draft.feedback },
+    { label: "KEY DECISIONS", content: draft.decisions },
     { label: "LEARNINGS", content: draft.learnings },
   ];
 
@@ -268,7 +268,7 @@ const DraftOutput = ({
   // When draft becomes available, wait for typewriter animations to finish before showing final view
   useEffect(() => {
     if (draft && !isLoading) {
-      const sections = [draft.problem, draft.process, draft.solution, draft.feedback, draft.learnings];
+      const sections = [draft.problem, draft.process, draft.solution, draft.decisions, draft.learnings];
       const maxLength = Math.max(...sections.map((s) => s.length));
       const animationTime = maxLength * 16;
 
@@ -334,9 +334,9 @@ const DraftOutput = ({
   const solutionPreview = streamText
     ? extractJsonStringField(streamText, "solution")
     : draft?.solution || null;
-  const feedbackPreview = streamText
-    ? extractJsonStringField(streamText, "feedback")
-    : draft?.feedback || null;
+  const decisionsPreview = streamText
+    ? extractJsonStringField(streamText, "decisions")
+    : draft?.decisions || null;
   const learningsPreview = streamText
     ? extractJsonStringField(streamText, "learnings")
     : draft?.learnings || null;
@@ -437,9 +437,9 @@ const DraftOutput = ({
           </section>
 
           <section className="px-3 py-4 sm:px-4">
-            <p className="text-xs font-medium text-[#808080]">Feedback</p>
-            {feedbackPreview ? (
-              <TypewriterParagraph key={feedbackPreview} text={feedbackPreview} />
+            <p className="text-xs font-medium text-[#808080]">Key Decisions</p>
+            {decisionsPreview ? (
+              <TypewriterParagraph key={decisionsPreview} text={decisionsPreview} />
             ) : (
               <div className="mt-3 animate-pulse space-y-2">
                 <div className="h-3 w-full rounded bg-[#e8e8e8]" />
@@ -511,9 +511,9 @@ const DraftOutput = ({
 
         <div className="overflow-hidden rounded-xl border border-[#eeeeee]">
           <DraftSection title="The Problem" content={draft.problem} />
-          <DraftSection title="Process & Approach" content={draft.process} />
+          <DraftSection title="Process & Insights" content={draft.process} />
           <DraftSection title="Solution" content={draft.solution} />
-          <DraftSection title="Feedback" content={draft.feedback} />
+          <DraftSection title="Key Decisions" content={draft.decisions} />
           <DraftSection title="Learnings" content={draft.learnings} />
         </div>
 

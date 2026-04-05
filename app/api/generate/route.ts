@@ -6,10 +6,11 @@ type GenerateRequestBody = {
 };
 
 type CaseStudyDraft = {
+  meta: string;
   problem: string;
   process: string;
   solution: string;
-  feedback: string;
+  decisions: string;
   learnings: string;
 };
 
@@ -24,10 +25,11 @@ const isCaseStudyDraft = (value: unknown): value is CaseStudyDraft => {
   if (!value || typeof value !== "object") return false;
   const record = value as Record<string, unknown>;
   return (
+    typeof record.meta === "string" &&
     typeof record.problem === "string" &&
     typeof record.process === "string" &&
     typeof record.solution === "string" &&
-    typeof record.feedback === "string" &&
+    typeof record.decisions === "string" &&
     typeof record.learnings === "string"
   );
 };
@@ -109,8 +111,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       body: JSON.stringify({
         model,
         temperature: 0.4,
-          // Limits output length to improve speed and reduce time-to-first-result.
-          max_tokens: 650,
+        max_tokens: 900,
         stream: true,
         messages: [
           { role: "system", content: SYSTEM_PROMPT },
@@ -227,6 +228,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           throw new Error("OpenAI returned JSON with an unexpected shape.");
         }
 
+        console.log("CaseGen extraction meta:", (parsed as CaseStudyDraft).meta);
+
         controller.enqueue(
           encoder.encode(
             `event: done\ndata: ${JSON.stringify(parsed)}\n\n`,
@@ -254,5 +257,3 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     },
   });
 }
-
-
